@@ -1,29 +1,29 @@
 import React, { useContext, useState, useEffect } from 'react';
-import { View, Text, FlatList, Dimensions } from 'react-native';
+import { View, Text, FlatList, Dimensions, ScrollView, TouchableOpacity } from 'react-native';
 import styled from 'styled-components/native';
 import InfoCard from '../components/InfoCard';
 import { AppContext } from '../../context/AppContext';
-import { getCompanyInfo, getProfileInfo } from '../services/authServices';
+import { getCompanyInfo } from '../services/authServices';
 import { LinearGradient } from 'expo-linear-gradient';
 import { StatusBar } from 'expo-status-bar';
+import { useRouter } from 'expo-router';
+import { getActivityList } from '../services/productServices';
 
-
-const { width, height } = Dimensions.get('window');
-
+const { width } = Dimensions.get('window');
 
 const Container = styled.View`
+  /* flex: 1; */
   background-color: #f5f5f5;
 `;
 
 const GradientBackground = styled(LinearGradient).attrs({
-  colors: ['#c2e9fb', '#ffdde1'], // Top to bottom gradient
+  colors: ['#c2e9fb', '#ffdde1'],
   start: { x: 0, y: 0 },
   end: { x: 1, y: 1 },
 })`
   /* flex: 1; */
   align-items: center;
-  /* padding: 20px; */
-  height:100%;
+  height: 100%;
 `;
 
 const LogoContainer = styled.View`
@@ -38,14 +38,13 @@ const LogoContainer = styled.View`
 `;
 
 const Logo = styled.Image.attrs(() => ({
-  resizeMode: 'contain',  // Cover ensures the image fills the container
+  resizeMode: 'contain',
 }))`
   width: 95%;
   height: 95%;
-  border-radius: ${width * 0.35}px;  /* Ensures the image respects the circular shape */
+  border-radius: ${width * 0.35}px;
 `;
 
-// Header styles
 const CompanyName = styled.Text`
   font-size: 22px;
   font-weight: bold;
@@ -59,21 +58,22 @@ const SubHeader = styled.Text`
   color: #555555;
 `;
 
-// Activity List
 const ActivityContainer = styled.View`
-  width: 100%;
-  margin-top: 20px;
+  width: 95%;
   padding: 20px;
+  background-color: white;
+  border-radius: 20px 20px 0px 0px;
 `;
 
-const ActivityRow = styled.View`
+const ActivityRow = styled(TouchableOpacity)`
   flex-direction: row;
   justify-content: space-between;
-  padding: 12px 16px;
+  padding: 15px 16px;
   background-color: #ffffff;
   margin-bottom: 5px;
   border-radius: 10px;
   elevation: 2;
+  border: 1px solid #353535;
 `;
 
 const ActivityText = styled.Text`
@@ -92,16 +92,24 @@ const Row = styled.View`
   justify-content: center;
   width: 100%;
   margin-bottom: 10px;
+  
 `;
 
-// Main App Component
 const HomePage = () => {
+  const router = useRouter();
   const { userToken } = useContext(AppContext);
   const [company, setCompany] = useState({});
   const [loading, setLoading] = useState(false);
+  const [activities, setActivities] = useState([]);
+  const [total, setTotal] = useState(0);
+  const [review, setReview] = useState(0);
+  const [completed, setCompleted] = useState(0);
+  const [pending, setPending] = useState(0);
+  const [overdue, setOverdue] = useState(0);
 
   useEffect(() => {
     setLoading(true);
+    fetchActivityDetails();
     getCompanyInfo()
       .then((res) => {
         setCompany(res.data);
@@ -110,60 +118,96 @@ const HomePage = () => {
       .catch(() => setLoading(false));
   }, []);
 
-  const activities = [
-    { id: '1', reference: 'PROJECT-2021-00002', status: 'IN PROGRESS' },
-    { id: '2', reference: 'PROJECT-2023-00004', status: 'IN PROGRESS' },
-    { id: '3', reference: 'PTAX-2020-00005', status: 'IN PROGRESS' },
-  ];
+
+  
+
+  // const activities = [
+  //   { id: '1', reference: 'PROJECT-2021-00002', status: 'IN PROGRESS' },
+  //   { id: '2', reference: 'PROJECT-2023-00004', status: 'IN PROGRESS' },
+  //   { id: '3', reference: 'PTAX-2020-00005', status: 'IN PROGRESS' },
+  //   { id: '4', reference: 'PROJECT-2021-00002', status: 'IN PROGRESS' },
+  //   { id: '5', reference: 'PROJECT-2023-00004', status: 'IN PROGRESS' },
+  //   { id: '6', reference: 'PTAX-2020-00005', status: 'IN PROGRESS' },
+  //   { id: '7', reference: 'PROJECT-2021-00002', status: 'IN PROGRESS' },
+  //   { id: '8', reference: 'PROJECT-2023-00004', status: 'IN PROGRESS' },
+  //   { id: '9', reference: 'PTAX-2020-00005', status: 'IN PROGRESS' },
+  // ];
+
+
+      
+  
+      const fetchActivityDetails = () => {
+          getActivityList().then(res => {
+            setActivities(res?.data?.a_list)
+            setTotal(res?.data?.project_count)
+            setReview(res?.data?.review_count)
+            setCompleted(res?.data?.completed_count)
+            setPending(res?.data?.pending_count)
+            setOverdue(res?.data?.over_due_count)
+              // console.log('Response Data==', res.data);
+          }).catch((res) => {
+              console.log(res);
+          });
+      };
+
+  // Example functions for InfoCard clicks
+  const handleProjectClick = () => {
+    router.push({
+      pathname: 'ActivityList' 
+    });
+  };
+  const handleReviewsClick = () => alert('Reviews Clicked');
+  const handleCompletedClick = () => {
+    router.push({
+      pathname: 'ActivityCompleted' 
+    });
+  };
+  const handlePendingClick = () => {
+    router.push('activity');
+  };
+  const handleOverdueClick = () => alert('Overdue Activities Clicked');
+
+  // console.log('Activity List======',activities)
 
   return (
     <Container>
-      <StatusBar barStyle="light-content" backgroundColor="#a970ff" />
-    <GradientBackground>
-      {/* Logo */}
+      <StatusBar barStyle="light-content" backgroundColor="#c2e9fb" />
+      <GradientBackground>
         <LogoContainer>
-          <Logo source={{ uri: company.image || 'https://via.placeholder.com/150' }} />
+          <Logo source={{ uri: company.image || 'https://home.atomwalk.com/static/media/Atom_walk_logo-removebg-preview.21661b59140f92dd7ced.png' }} />
         </LogoContainer>
         <CompanyName>{company.name || 'Atomwalk Technologies'}</CompanyName>
+        <SubHeader>Welcome to Atomwalk Office!</SubHeader>
 
-      {/* <Header>ATOMWALK TECHNOLOGIES</Header> */}
-      <SubHeader>Welcome to Atomwalk Office!</SubHeader>
-
-      {/* <View style={{ flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'center' }}>
-        <InfoCard number="3" label="Project Activities" gradientColors={['#007bff', '#00c6ff']} />
-        <InfoCard number="0" label="Reviews" gradientColors={['#6dd5ed', '#2193b0']} />
-        <InfoCard number="1" label="Completed Activities" gradientColors={['#38ef7d', '#11998e']} />
-        <InfoCard number="2" label="Pending/On Hold" gradientColors={['#f09819', '#ff512f']} />
-        <InfoCard number="2" label="Over Due Activities" gradientColors={['#e52d27', '#b31217']} />
-      </View> */}
-
-      {/* Cards Layout */}
-      <Row>
-          <InfoCard number="3" label="Project Activities" gradientColors={['#007bff', '#00c6ff']} />
-          <InfoCard number="0" label="Reviews" gradientColors={['#6dd5ed', '#2193b0']} />
+        {/* Cards Layout */}
+        <Row>
+          <InfoCard number={total} label="Project Activities" gradientColors={['#007bff', '#00c6ff']} onPress={handleProjectClick} />
+          <InfoCard number={review} label="Reviews" gradientColors={['#6dd5ed', '#2193b0']} onPress={handleReviewsClick} />
         </Row>
 
         <Row>
-          <InfoCard number="1" label="Completed Activities" gradientColors={['#38ef7d', '#11998e']} />
-          <InfoCard number="2" label="Pending/On Hold" gradientColors={['#f09819', '#ff512f']} />
-          <InfoCard number="2" label="Over Due Activities" gradientColors={['#e52d27', '#b31217']} />
+          <InfoCard number={completed} label="Completed Activities" gradientColors={['#38ef7d', '#11998e']} onPress={handleCompletedClick} />
+          <InfoCard number={pending} label="Pending/On Hold" gradientColors={['#f09819', '#ff512f']} onPress={handlePendingClick} />
+          <InfoCard number={overdue} label="Over Due Activities" gradientColors={['#e52d27', '#b31217']} onPress={handleOverdueClick} />
         </Row>
 
-      {/* Activity List */}
-      <ActivityContainer>
-        <Text style={{ fontSize: 18, fontWeight: 'bold', marginBottom: 10 }}>Activity Reference</Text>
-        <FlatList
-          data={activities}
-          keyExtractor={(item) => item.id}
-          renderItem={({ item }) => (
-            <ActivityRow>
-              <ActivityText>{item.reference}</ActivityText>
-              <StatusText>{item.status}</StatusText>
-            </ActivityRow>
-          )}
-        />
-      </ActivityContainer>
-    </GradientBackground>
+        {/* Scrollable Activity List */}
+        <ActivityContainer>
+        <Text style={{ fontSize: 18, fontWeight: 'bold', marginBottom: 10, color: '#454545' }}>Activity Reference</Text>
+          <FlatList
+            data={activities}
+            keyExtractor={(item) => item.id}
+            showsVerticalScrollIndicator={false}
+            renderItem={({ item }) => (
+              <ActivityRow onPress={() => alert(`You clicked on ${item.ref_num}`)}>
+                <ActivityText>{item.ref_num}</ActivityText>
+                <StatusText>{item.status}</StatusText>
+              </ActivityRow>
+            )}
+            style={{ maxHeight: 200 }}
+          />
+        </ActivityContainer>
+      </GradientBackground>
     </Container>
   );
 };

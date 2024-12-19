@@ -11,6 +11,9 @@ export default function RootLayout() {
       <Stack.Screen name="AuthScreen/index" options={{headerShown:false}}/> 
       <Stack.Screen name="PinScreen/index" options={{headerShown:false}}/> 
       <Stack.Screen name="ResetPassword/index" options={{headerShown:false}}/>
+      <Stack.Screen name="ActivityList/index" options={{headerShown:false}}/>
+      <Stack.Screen name="InventoryData/index" options={{headerShown:false}}/>
+      <Stack.Screen name="ActivityCompleted/index" options={{headerShown:false}}/>
     </Stack>
     </AppProvider>
   );

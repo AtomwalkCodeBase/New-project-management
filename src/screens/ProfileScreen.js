@@ -5,19 +5,31 @@ import { View, Text } from 'react-native';
 import { MaterialCommunityIcons, FontAwesome } from '@expo/vector-icons';
 import { AppContext } from '../../context/AppContext';
 import { getProfileInfo } from '../services/authServices';
-import HeaderComponent from './HeaderComponent';
 import { useNavigation, useRouter } from 'expo-router';
 import Animated, { FadeIn, FadeOut, SlideInLeft, SlideOutRight } from 'react-native-reanimated';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import HeaderComponent from '../components/HeaderComponent';
+import { LinearGradient } from 'expo-linear-gradient';
 
 // Styled components
-const Container = styled.View`
+const GradientBackground = styled(LinearGradient).attrs({
+  colors: ['#c2e9fb', '#ffdde1'],
+  start: { x: 0, y: 0 },
+  end: { x: 1, y: 1 },
+})`
   flex: 1;
-  justify-content: flex-start;
   align-items: center;
-  background-color: #f9f9fb;
+  justify-content: flex-start;
+  height: 100%;
   padding: 20px;
 `;
+// const Container = styled.View`
+//   flex: 1;
+//   justify-content: flex-start;
+//   align-items: center;
+//   /* background-color: #f9f9fb; */
+//   padding: 20px;
+// `;
 const DetailsContainer = styled.View`
   /* flex: 1; */
   justify-content: flex-start;
@@ -27,7 +39,7 @@ const DetailsContainer = styled.View`
 `;
 
 const AvatarContainer = styled(Animated.View)`
-  background-color: #e0bbff;
+  background-color: #ABE4FE;
   width: 120px;
   height: 120px;
   border-radius: 60px;
@@ -146,10 +158,13 @@ const ProfileScreen = () => {
     router.push({ pathname: 'ResetPassword' });
   };
 
+  
+
   return (
     <>
       <HeaderComponent headerTitle="My Profile" onBackPress={handleBackPress} />
-      <Container>
+      <GradientBackground>
+      {/* <Container> */}
         <AvatarContainer entering={FadeIn.duration(700)} exiting={FadeOut.duration(500)}>
           <ProfileImage source={{ uri: profile?.image }} />
         </AvatarContainer>
@@ -198,7 +213,8 @@ const ProfileScreen = () => {
         <ChangePasswordButton onPress={handlePressPassword} entering={FadeIn.delay(800)}>
           <ChangePasswordText>{userPin?"Update Your Pin":"Set Your Pin"}</ChangePasswordText>
         </ChangePasswordButton>
-      </Container>
+      {/* </Container> */}
+      </GradientBackground>
     </>
   );
 };

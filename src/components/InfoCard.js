@@ -1,6 +1,7 @@
 import React from 'react';
 import styled from 'styled-components/native';
 import { LinearGradient } from 'expo-linear-gradient';
+import { TouchableOpacity } from 'react-native';
 
 // InfoCard container with shadow and gradient background
 const InfoCardContainer = styled(LinearGradient).attrs((props) => ({
@@ -37,11 +38,13 @@ const LabelText = styled.Text`
 `;
 
 // InfoCard Component
-const InfoCard = ({ number, label, gradientColors }) => (
-  <InfoCardContainer colors={gradientColors}>
-    <NumberText>{number}</NumberText>
-    <LabelText>{label}</LabelText>
-  </InfoCardContainer>
+const InfoCard = ({ number, label, gradientColors, onPress }) => (
+  <TouchableOpacity onPress={onPress} activeOpacity={0.7}>
+    <InfoCardContainer colors={gradientColors}>
+      <NumberText>{number}</NumberText>
+      <LabelText>{label}</LabelText>
+    </InfoCardContainer>
+  </TouchableOpacity>
 );
 
 export default InfoCard;

@@ -13,11 +13,17 @@ const _layout = () => {
         headerShown:false,
         tabBarIcon:({color})=><FontAwesome name="home" size={24} color={color} />
         }}/>
+        <Tabs.Screen name='activity'options={{
+     title:'Activity',
+     headerShown:false,
+     tabBarIcon:({color})=><Ionicons name="hammer-sharp" size={24} color={color}/>
+    }}></Tabs.Screen> 
         <Tabs.Screen name='profile'options={{
      title:'Profile',
      headerShown:false,
      tabBarIcon:({color})=><Ionicons name="people" size={24} color={color}/>
     }}></Tabs.Screen> 
+    
         {/* <Tabs.Screen name='profile'/> */}
     </Tabs>
   )

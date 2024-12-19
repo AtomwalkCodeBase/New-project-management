@@ -6,7 +6,7 @@ import styled from 'styled-components/native';
 const { width, height } = Dimensions.get('window');
 
 const HeaderContainer = styled.View`
-  background-color: white;
+  background-color: transparent;
   padding: 15px 10px;
   margin-top: ${height < 806 ? '20px' : '48px'};
   flex-direction: row;

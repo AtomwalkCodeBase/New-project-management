@@ -2,37 +2,40 @@ import React from 'react';
 import { Text, View, Modal, TouchableOpacity } from 'react-native';
 import styled from 'styled-components/native';
 
-const ModalComponent = ({ isVisible, leave, onClose, claim }) => {
-  // console.log("Claim Data",claim)
+const ModalComponent = ({ isVisible, onClose, activityDetails }) => {
   return (
     <Modal visible={isVisible} transparent={true} animationType="slide">
       <ModalContainer>
         <ModalContent>
+          {/* Header */}
+          <ModalTitle>Packaging and Inspection</ModalTitle>
 
-          
-          {leave ? (
+          {/* Activity Details */}
+          {activityDetails ? (
             <>
-            <Text>{leave.leave_type_display}</Text>
-            <Text>No. of Days: {leave.no_leave_count}</Text>
-            <Text>{leave.from_date} to {leave.to_date}</Text>
-            <Text>Remark: {leave.remarks}</Text>
-            <Text>Status: {leave.status_display}</Text>
+              <DetailText>
+                <BoldText>Project for Order:</BoldText> {activityDetails.order}
+              </DetailText>
+              <DetailText>
+                <BoldText>Planned Start Date:</BoldText> {activityDetails.plannedStart}
+              </DetailText>
+              <DetailText>
+                <BoldText>Actual Start Date:</BoldText> {activityDetails.actualStart}
+              </DetailText>
+              <DetailText>
+                <BoldText>Planned Duration:</BoldText> {activityDetails.plannedDuration} Days
+              </DetailText>
+              <DetailText>
+                <BoldText>Actual Duration:</BoldText> {activityDetails.actualDuration} Days
+              </DetailText>
             </>
-          ) : null}
+          ) : (
+            <Text>No details available.</Text>
+          )}
 
-          {claim ? (
-            <>
-            <Text style={{ fontWeight: 'bold' }} >{claim.claim_id}</Text>
-            <Text>Claim Date: {claim.submitted_date}</Text>
-            <Text>Expense Amount: {claim.expense_amt}</Text>
-            <Text>Project Name: {claim.project_name}</Text>
-            <Text>Remark: {claim.remarks}</Text>
-            {/* <Text>Status: {leave.status_display}</Text> */}
-            </>
-          ) : null}
-
+          {/* Close Button */}
           <CancelButton onPress={onClose}>
-            <Text style={{ color: 'white' }}>Back</Text>
+            <ButtonText>Back</ButtonText>
           </CancelButton>
         </ModalContent>
       </ModalContainer>
@@ -51,9 +54,26 @@ const ModalContainer = styled.View`
 const ModalContent = styled.View`
   background-color: white;
   padding: 20px;
-  border-radius: 8px;
-  width: 80%;
-  align-items: center;
+  border-radius: 12px;
+  width: 90%;
+  elevation: 5;
+`;
+
+const ModalTitle = styled.Text`
+  font-size: 18px;
+  font-weight: bold;
+  margin-bottom: 15px;
+  text-align: center;
+`;
+
+const DetailText = styled.Text`
+  font-size: 14px;
+  margin-bottom: 5px;
+`;
+
+const BoldText = styled.Text`
+  font-weight: bold;
+  font-size: 14px;
 `;
 
 const CancelButton = styled.TouchableOpacity`
@@ -61,6 +81,14 @@ const CancelButton = styled.TouchableOpacity`
   padding: 10px;
   border-radius: 8px;
   margin-top: 20px;
+  align-self: stretch;
+`;
+
+const ButtonText = styled.Text`
+  color: white;
+  text-align: center;
+  font-weight: bold;
+  font-size: 14px;
 `;
 
 export default ModalComponent;
