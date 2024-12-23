@@ -2,13 +2,14 @@ import React from 'react';
 import { Text, View, Modal, TouchableOpacity } from 'react-native';
 import styled from 'styled-components/native';
 
+
 const ModalComponent = ({ isVisible, onClose, activityDetails }) => {
   return (
     <Modal visible={isVisible} transparent={true} animationType="slide">
       <ModalContainer>
         <ModalContent>
           {/* Header */}
-          <ModalTitle>Packaging and Inspection</ModalTitle>
+          <ModalTitle>{activityDetails.order}</ModalTitle>
 
           {/* Activity Details */}
           {activityDetails ? (

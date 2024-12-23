@@ -4,8 +4,8 @@ import styled from 'styled-components/native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useNavigation, useRouter } from 'expo-router';
 import HeaderComponent from '../components/HeaderComponent';
-import ModalComponent from '../components/ModalComponent'; // Import the ModalComponent
-import { getActivityList } from '../services/productServices';
+import ModalComponent from '../components/ModalComponent';
+import { getActivitiQcData, getActivityList } from '../services/productServices';
 
 // Screen Dimensions
 const { width } = Dimensions.get('window');
@@ -50,6 +50,7 @@ const Row = styled.View`
   flex-direction: row;
   justify-content: space-between;
   align-items: center;
+  margin-bottom: 2px;
 `;
 
 const BoldText = styled.Text`
@@ -99,50 +100,70 @@ const ButtonText = styled.Text`
   text-align: center;
 `;
 
-// Main Screen Component
-const AllActivity = () => {
+const ActivityScreen = (props) => {
     const navigation = useNavigation();
     const router = useRouter();
-    const [isModalVisible, setModalVisible] = useState(false); // Modal visibility state
-    const [selectedActivity, setSelectedActivity] = useState(null); // Selected activity details
+    const [isModalVisible, setModalVisible] = useState(false);
+    const [selectedActivity, setSelectedActivity] = useState(null);
     const [activities, setActivities] = useState([]);
 
-    // const activities = [
-    //     { id: 1, title: 'Packaging and Inspection', project: 'Lab Management Project - 1', date: 'Nov. 8, 2020', status: 'PLANNED' },
-    //     { id: 2, title: 'Packaging and Inspection', project: 'Lab Management Project - 1', date: 'Nov. 8, 2020', status: 'PLANNED' },
-    //     { id: 3, title: 'Packaging and Inspection', project: 'Lab Management Project - 1', date: 'Nov. 8, 2020', status: 'PLANNED' },
-    //     { id: 4, title: 'Packaging and Inspection', project: 'Lab Management Project - 1', date: 'Nov. 8, 2020', status: 'COMPLETED' },
-    //     { id: 5, title: 'Packaging and Inspection', project: 'Lab Management Project - 1', date: 'Nov. 8, 2020', status: 'OVER-DUE' },
-    //     { id: 6, title: 'Packaging and Inspection', project: 'Lab Management Project - 1', date: 'Nov. 8, 2020', status: 'COMPLETED' },
-    // ];
+    const activityType = props.data
 
     useEffect(() => {
         fetchActivityDetails();
     }, []);
 
-    const fetchActivityDetails = () => {
-        getActivityList().then(res => {
-          setActivities(res?.data?.a_list)
-            // console.log('Response Data==', res.data);
-        }).catch((res) => {
-            console.log(res);
-        });
+    const fetchActivityDetails = async () => {
+        try {
+            const res = await getActivityList();
+            let fetchedActivities = res?.data?.a_list || [];
+
+            console.log('Response==',res.data)
+
+            if (activityType === 'PENDING') {
+                fetchedActivities = fetchedActivities.filter(
+                    (activity) => activity.status === 'COMPLETED' || activity.no_pending !== 0
+                );
+            }
+
+            setActivities(fetchedActivities);
+        } catch (error) {
+            console.error('Error fetching activities:', error);
+        }
     };
 
     const handleInventoryClick = (id) => {
         router.push({
             pathname: 'InventoryData',
-            // params: id,
+            params: { ref_num: id },
         });
-        console.log('Data====+', id);
+        // fetchActivityQc(id);
     };
+
+    // const fetchActivityQc = (id) => {
+    //     // getActivitiQcData(id)
+    //     //     .then((res) => console.log('QC Data Response:', res.data))
+    //     //     .catch((error) => console.error('Error fetching QC data:', error));
+    // };
+
+    const handleQcClick = (id) => {
+        router.push({
+            pathname: 'QcData',
+            params: { ref_num: id },
+        });
+        // fetchActivityQc(id);
+    };
+
+    
 
     const handleViewDetails = (activity) => {
-        setSelectedActivity(activity); // Set the selected activity details
-        setModalVisible(true); // Show the modal
+        setSelectedActivity(activity);
+        setModalVisible(true);
     };
 
-    console.log('Activity Data====',activities)
+    const handleBackPress = () => {
+        navigation.goBack();
+    };
 
     const getBadgeColor = (status) => {
         switch (status) {
@@ -155,65 +176,62 @@ const AllActivity = () => {
         }
     };
 
-    const handleBackPress = () => {
-        navigation.goBack();
-    };
-
     return (
         <GradientBackground>
-            <HeaderComponent headerTitle="All Activities" onBackPress={handleBackPress} />
+            <HeaderComponent
+                headerTitle={activityType === 'PENDING' ? 'Pending Activities' : 'All Activities'}
+                onBackPress={handleBackPress}
+            />
 
             <Container>
                 {activities.map((activity) => (
                     <Card key={activity.ref_num}>
-                    <Row>
-                        <BoldText>{activity.ref_num}</BoldText>
-                        <StatusBadge bgColor={getBadgeColor(activity)}>
-                            <StatusText>
-                                {activity.is_over_due ? 'OVER-DUE' : activity.status}
-                            </StatusText>
-                        </StatusBadge>
-                    </Row>
-                    <SubText>Due Date: {activity.due_date || 'N/A'}</SubText>
-                    <SubText>Sale Order: {activity.sale_order_no || 'None'}</SubText>
+                        <Row>
+                            <BoldText>{activity.sale_order_no || activity.ref_num}</BoldText>
+                            <StatusBadge bgColor={getBadgeColor(activity.status)}>
+                                <StatusText>{activity.is_over_due ? 'OVER-DUE' : activity.status}</StatusText>
+                            </StatusBadge>
+                        </Row>
+                        <SubText>{activity.ref_num || 'None'}</SubText>
+                        <SubText>Due Date: {activity.due_date || 'N/A'}</SubText>
 
-                    {/* <ButtonRow>
-                        <ActionButton
-                            bgColor="#4285f4"
-                            onPress={() => handleViewDetails(activity)}
-                            fullWidth={true}
-                        >
-                            <ButtonText>View Details</ButtonText>
-                        </ActionButton>
-                    </ButtonRow> */}
-                    <ButtonRow>
+                        <ButtonRow>
                             {activity.status !== 'COMPLETED' && activity.status !== 'OVER-DUE' && (
                                 <>
-                                    <ActionButton bgColor="#28a745" onPress={() => alert('Mark as Completed')}>
+                                    <ActionButton
+                                        bgColor="#28a745"
+                                        onPress={() => alert('Mark as Completed')}
+                                    >
                                         <ButtonText>Mark as Completed</ButtonText>
                                     </ActionButton>
-                                    <ActionButton bgColor="#f77f00" onPress={() => alert('QC Data Update')}>
+                                    <ActionButton
+                                        bgColor="#f77f00"
+                                        onPress={() => handleQcClick(activity.activity_id)}
+                                    >
                                         <ButtonText>QC Data Update</ButtonText>
                                     </ActionButton>
-                                    <ActionButton bgColor="#4285f4" onPress={() => handleInventoryClick(activity?.id)}>
+                                    <ActionButton
+                                        bgColor="#4285f4"
+                                        onPress={() => handleInventoryClick(activity.activity_id)}
+                                    >
                                         <ButtonText>Inventory Update</ButtonText>
                                     </ActionButton>
                                 </>
                             )}
                             <ActionButton
                                 bgColor="#4285f4"
-                                fullWidth={activity.status === 'COMPLETED' || activity.status !== 'IN PROGRESS'}
+                                fullWidth={
+                                    activity.status === 'COMPLETED' || activity.status !== 'IN PROGRESS'
+                                }
                                 onPress={() => handleViewDetails(activity)}
                             >
                                 <ButtonText>View Details</ButtonText>
                             </ActionButton>
                         </ButtonRow>
-
-                </Card>
-            ))}
+                    </Card>
+                ))}
             </Container>
 
-            {/* Modal Component */}
             {selectedActivity && (
                 <ModalComponent
                     isVisible={isModalVisible}
@@ -223,7 +241,7 @@ const AllActivity = () => {
                         plannedStart: 'Planned Start Date Placeholder',
                         actualStart: 'Actual Start Date Placeholder',
                         plannedDuration: 'Planned Duration Placeholder',
-                        actualDuration: 'Actual Duration Placeholder'
+                        actualDuration: 'Actual Duration Placeholder',
                     }}
                 />
             )}
@@ -231,4 +249,4 @@ const AllActivity = () => {
     );
 };
 
-export default AllActivity;
+export default ActivityScreen;

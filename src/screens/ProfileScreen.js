@@ -19,17 +19,17 @@ const GradientBackground = styled(LinearGradient).attrs({
 })`
   flex: 1;
   align-items: center;
-  justify-content: flex-start;
+  /* justify-content: flex-start; */
   height: 100%;
+  /* padding: 20px; */
+`;
+const Container = styled.View`
+  /* flex: 1; */
+  justify-content: flex-start;
+  align-items: center;
+  /* background-color: #f9f9fb; */
   padding: 20px;
 `;
-// const Container = styled.View`
-//   flex: 1;
-//   justify-content: flex-start;
-//   align-items: center;
-//   /* background-color: #f9f9fb; */
-//   padding: 20px;
-// `;
 const DetailsContainer = styled.View`
   /* flex: 1; */
   justify-content: flex-start;
@@ -162,9 +162,9 @@ const ProfileScreen = () => {
 
   return (
     <>
-      <HeaderComponent headerTitle="My Profile" onBackPress={handleBackPress} />
       <GradientBackground>
-      {/* <Container> */}
+      <HeaderComponent headerTitle="My Profile" onBackPress={handleBackPress} />
+      <Container>
         <AvatarContainer entering={FadeIn.duration(700)} exiting={FadeOut.duration(500)}>
           <ProfileImage source={{ uri: profile?.image }} />
         </AvatarContainer>
@@ -213,7 +213,7 @@ const ProfileScreen = () => {
         <ChangePasswordButton onPress={handlePressPassword} entering={FadeIn.delay(800)}>
           <ChangePasswordText>{userPin?"Update Your Pin":"Set Your Pin"}</ChangePasswordText>
         </ChangePasswordButton>
-      {/* </Container> */}
+      </Container>
       </GradientBackground>
     </>
   );

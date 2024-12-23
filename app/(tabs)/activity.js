@@ -1,13 +1,13 @@
 import { StyleSheet, Text, View } from 'react-native'
 // import React from 'react'
 import React, { useContext } from 'react';
-import PendingActivities from '../../src/screens/PendingActivity';
+import ActivityScreen from '../../src/screens/AllActivity';
 
 const profile = () => {
   return (
     <View style={{ flex: 1}}>
       {/* <ProfileScreen/> */}
-     <PendingActivities/>
+     <ActivityScreen data='PENDING'/>
       </View>
   )
 }

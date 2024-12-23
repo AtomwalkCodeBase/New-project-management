@@ -1,9 +1,11 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { ScrollView, Dimensions } from 'react-native';
 import styled from 'styled-components/native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useNavigation, useRouter } from 'expo-router';
 import HeaderComponent from '../components/HeaderComponent';
+import ModalComponent from '../components/ModalComponent';
+import { getActivityList } from '../services/productServices';
 
 // Screen Dimensions
 const { width } = Dimensions.get('window');
@@ -90,7 +92,6 @@ const ActionButton = styled.TouchableOpacity`
   margin-bottom: 10px;
 `;
 
-
 const ButtonText = styled.Text`
   color: #fff;
   font-size: 15px;
@@ -99,80 +100,113 @@ const ButtonText = styled.Text`
 `;
 
 // Main Screen Component
-const CompletedActivity = () => {
+const ActivityScreen = ({ data }) => {
     const navigation = useNavigation();
-      const router = useRouter();
-    const activities = [
-      { id: 4, title: 'Packaging and Inspection', project: 'Lab Management Project - 1', date: 'Nov. 8, 2020', status: 'COMPLETED' },
-      { id: 5, title: 'Packaging and Inspection', project: 'Lab Management Project - 1', date: 'Nov. 8, 2020', status: 'COMPLETED' },
-  ];
+    const router = useRouter();
+    const [isModalVisible, setModalVisible] = useState(false); // Modal visibility state
+    const [selectedActivity, setSelectedActivity] = useState(null); // Selected activity details
+    const [activities, setActivities] = useState([]);
 
-  const handleInventoryClick = (id) => {
-    router.push({
-      pathname: 'InventoryData',
-      // params: id,
-    });
-    console.log('Dat====+',id)
-  };
+    useEffect(() => {
+        fetchActivityDetails();
+    }, []);
 
-  const getBadgeColor = (status) => {
-      switch (status) {
-          case 'COMPLETED':
-              return '#28a745';
-          case 'OVER-DUE':
-              return '#ff4d4d';
-          default:
-              return '#ffca28';
-      }
-  };
+    const fetchActivityDetails = async () => {
+        try {
+            const res = await getActivityList();
+            let filteredActivities = res?.data?.a_list || [];
+            if (data === 'PENDING') {
+                filteredActivities = filteredActivities.filter(
+                    (activity) =>
+                        activity.status === 'PENDING' ||
+                        activity.no_pending > 0
+                );
+            } else if (data === 'COMPLETED') {
+                filteredActivities = filteredActivities.filter(
+                    (activity) =>
+                        activity.status === 'COMPLETED' ||
+                        (activity.no_cancelled === 0 &&
+                            activity.no_hold === 0 &&
+                            activity.no_pending === 0)
+                );
+            }
+            setActivities(filteredActivities || []);
+        } catch (error) {
+            console.error('Error fetching activities:', error);
+        }
+    };
+
+    const handleViewDetails = (activity) => {
+        setSelectedActivity(activity); // Set the selected activity details
+        setModalVisible(true); // Show the modal
+    };
+
     const handleBackPress = () => {
         navigation.goBack();
     };
 
-
     return (
-      <GradientBackground>
-      <HeaderComponent headerTitle="Activities Completed" onBackPress={handleBackPress}/>
+        <GradientBackground>
+            <HeaderComponent
+                headerTitle={
+                    data === 'COMPLETED'
+                        ? 'Completed Activities'
+                        : data === 'PENDING'
+                        ? 'Pending Activities'
+                        : 'All Activities'
+                }
+                onBackPress={handleBackPress}
+            />
 
-      <Container>
-          {activities.map((activity) => (
-              <Card key={activity.id}>
-                  <Row>
-                      <BoldText>{activity.title}</BoldText>
-                      <StatusBadge bgColor={getBadgeColor(activity.status)}>
-                          <StatusText>{activity.status}</StatusText>
-                      </StatusBadge>
-                  </Row>
-                  <SubText>{activity.project}</SubText>
-                  <SubText>{activity.date}</SubText>
+            <Container>
+                {activities.map((activity) => (
+                    <Card key={activity.ref_num}>
+                        <Row>
+                            <BoldText>{activity.ref_num}</BoldText>
+                            <StatusBadge
+                                bgColor={
+                                    activity.status === 'COMPLETED'
+                                        ? '#28a745'
+                                        : activity.status === 'PENDING'
+                                        ? '#ffca28'
+                                        : '#007bff'
+                                }
+                            >
+                                <StatusText>{activity.status}</StatusText>
+                            </StatusBadge>
+                        </Row>
+                        <SubText>Due Date: {activity.due_date || 'N/A'}</SubText>
+                        <SubText>Sale Order: {activity.sale_order_no || 'None'}</SubText>
 
-                  <ButtonRow>
-                      {activity.status !== 'COMPLETED' && activity.status !== 'OVER-DUE' && (
-                          <>
-                              <ActionButton bgColor="#28a745" onPress={() => alert('Mark as Completed')}>
-                                  <ButtonText>Mark as Completed</ButtonText>
-                              </ActionButton>
-                              <ActionButton bgColor="#f77f00" onPress={() => alert('QC Data Update')}>
-                                  <ButtonText>QC Data Update</ButtonText>
-                              </ActionButton>
-                              <ActionButton bgColor="#4285f4" onPress={() => handleInventoryClick(activity?.id)}>
-                                  <ButtonText>Inventory Update</ButtonText>
-                              </ActionButton>
-                          </>
-                      )}
-                      <ActionButton
-                          bgColor="#4285f4"
-                          fullWidth={activity.status === 'COMPLETED' || activity.status === 'OVER-DUE'}
-                          onPress={() => alert('View Details')}
-                      >
-                          <ButtonText>View Details</ButtonText>
-                      </ActionButton>
-                  </ButtonRow>
-              </Card>
-          ))}
-      </Container>
-  </GradientBackground>
+                        <ButtonRow>
+                            <ActionButton
+                                bgColor="#4285f4"
+                                fullWidth
+                                onPress={() => handleViewDetails(activity)}
+                            >
+                                <ButtonText>View Details</ButtonText>
+                            </ActionButton>
+                        </ButtonRow>
+                    </Card>
+                ))}
+            </Container>
+
+            {/* Modal Component */}
+            {selectedActivity && (
+                <ModalComponent
+                    isVisible={isModalVisible}
+                    onClose={() => setModalVisible(false)}
+                    activityDetails={{
+                        order: selectedActivity.ref_num,
+                        plannedStart: 'Planned Start Date Placeholder',
+                        actualStart: 'Actual Start Date Placeholder',
+                        plannedDuration: 'Planned Duration Placeholder',
+                        actualDuration: 'Actual Duration Placeholder',
+                    }}
+                />
+            )}
+        </GradientBackground>
     );
 };
 
-export default CompletedActivity;
+export default ActivityScreen;

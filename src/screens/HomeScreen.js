@@ -196,7 +196,7 @@ const HomePage = () => {
         <Text style={{ fontSize: 18, fontWeight: 'bold', marginBottom: 10, color: '#454545' }}>Activity Reference</Text>
           <FlatList
             data={activities}
-            keyExtractor={(item) => item.id}
+            keyExtractor={(item) => item.activity_id}
             showsVerticalScrollIndicator={false}
             renderItem={({ item }) => (
               <ActivityRow onPress={() => alert(`You clicked on ${item.ref_num}`)}>
