@@ -5,7 +5,7 @@ import { Text } from 'react-native';
 import {colors} from '../Styles/appStyle';
 
 const FieldContainer = styled.View`
-  margin-bottom: 10px;
+  margin-bottom: 5px;
   margin-top: 5px;
 `;
 
@@ -17,7 +17,7 @@ const Label = styled.Text`
 const PickerContainer = styled.View`
   border-width: 1px;
   color: black;
-  border-color: #ccc;
+  border-color: #454545;
   border-radius: 5px;
 `;
 
@@ -25,7 +25,7 @@ const DropdownPicker = ({ error, label, data, value, setValue }) => {
   
   return (
     <FieldContainer>
-      <Label>{label}</Label>
+      {/* <Label>{label}</Label> */}
       <PickerContainer>
         <Dropdown
           data={(data || []).map((item) => ({
@@ -41,7 +41,7 @@ const DropdownPicker = ({ error, label, data, value, setValue }) => {
             padding: 10,
           }}
           placeholderStyle={{
-            color: '#ccc',
+            color: '#454545',
             fontSize: 16,
           }}
           selectedTextStyle={{

@@ -61,6 +61,7 @@ const SubHeader = styled.Text`
 const ActivityContainer = styled.View`
   width: 95%;
   padding: 20px;
+  height: 100%;
   background-color: white;
   border-radius: 20px 20px 0px 0px;
 `;
@@ -119,37 +120,30 @@ const HomePage = () => {
   }, []);
 
 
-  
-
-  // const activities = [
-  //   { id: '1', reference: 'PROJECT-2021-00002', status: 'IN PROGRESS' },
-  //   { id: '2', reference: 'PROJECT-2023-00004', status: 'IN PROGRESS' },
-  //   { id: '3', reference: 'PTAX-2020-00005', status: 'IN PROGRESS' },
-  //   { id: '4', reference: 'PROJECT-2021-00002', status: 'IN PROGRESS' },
-  //   { id: '5', reference: 'PROJECT-2023-00004', status: 'IN PROGRESS' },
-  //   { id: '6', reference: 'PTAX-2020-00005', status: 'IN PROGRESS' },
-  //   { id: '7', reference: 'PROJECT-2021-00002', status: 'IN PROGRESS' },
-  //   { id: '8', reference: 'PROJECT-2023-00004', status: 'IN PROGRESS' },
-  //   { id: '9', reference: 'PTAX-2020-00005', status: 'IN PROGRESS' },
-  // ];
-
-
       
   
-      const fetchActivityDetails = () => {
-          getActivityList().then(res => {
-            setActivities(res?.data?.a_list)
-            setTotal(res?.data?.project_count)
-            setReview(res?.data?.review_count)
-            setCompleted(res?.data?.completed_count)
-            setPending(res?.data?.pending_count)
-            setOverdue(res?.data?.over_due_count)
-              // console.log('Response Data==', res.data);
-          }).catch((res) => {
-              console.log(res);
-          });
-      };
-
+  const fetchActivityDetails = () => {
+    getActivityList()
+      .then((res) => {
+        const uniqueActivities = res?.data?.a_list.reduce((acc, current) => {
+          const x = acc.find(item => item.ref_num === current.ref_num);
+          if (!x) {
+            acc.push(current);
+          }
+          return acc;
+        }, []);
+        setActivities(uniqueActivities);
+        setTotal(res?.data?.project_count);
+        setReview(res?.data?.review_count);
+        setCompleted(res?.data?.completed_count);
+        setPending(res?.data?.pending_count);
+        setOverdue(res?.data?.over_due_count);
+      })
+      .catch((res) => {
+        console.log(res);
+      });
+  };
+  
   // Example functions for InfoCard clicks
   const handleProjectClick = () => {
     router.push({
@@ -165,6 +159,12 @@ const HomePage = () => {
   const handlePendingClick = () => {
     router.push('activity');
   };
+  const handleActivityClick = (id) => {
+    router.push({
+        pathname: 'ActivityList',
+        params: { ref_num: id },
+    });
+};
   const handleOverdueClick = () => alert('Overdue Activities Clicked');
 
   // console.log('Activity List======',activities)
@@ -195,11 +195,11 @@ const HomePage = () => {
         <ActivityContainer>
         <Text style={{ fontSize: 18, fontWeight: 'bold', marginBottom: 10, color: '#454545' }}>Activity Reference</Text>
           <FlatList
-            data={activities}
+            data={[...activities].reverse()}
             keyExtractor={(item) => item.activity_id}
             showsVerticalScrollIndicator={false}
             renderItem={({ item }) => (
-              <ActivityRow onPress={() => alert(`You clicked on ${item.ref_num}`)}>
+              <ActivityRow onPress={() => handleActivityClick(item.ref_num)}>
                 <ActivityText>{item.ref_num}</ActivityText>
                 <StatusText>{item.status}</StatusText>
               </ActivityRow>

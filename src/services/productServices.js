@@ -1,4 +1,4 @@
-import { addEmpLeave, getEmpLeavedata, addClaim, getEmpClaimdata, getExpenseItemList, getProjectList, getEmpAttendanceData, getEmpHolidayData, empCheckData, processClaim, getClaimApproverList, getActivities, getActivityQc } from "../services/ConstantServies";
+import { addEmpLeave, getEmpLeavedata, addClaim, getEmpClaimdata, getExpenseItemList, getProjectList, getEmpAttendanceData, getEmpHolidayData, empCheckData, processClaim, getClaimApproverList, getActivities, getActivityQc, processActivity } from "../services/ConstantServies";
 import { authAxios, authAxiosFilePost, authAxiosPost } from "./HttpMethod";
 
 export function getEmpLeave(leave_type , emp_id, year) {
@@ -101,20 +101,10 @@ export function getEmpLeave(leave_type , emp_id, year) {
     return authAxios(getActivities)
   }
 
+  
+
   export function getActivitiQcData(res) {
 
-    // console.log('Response===',res)
-    let data = {
-      'activity_id':res.activity_id
-    };
-    
-    // console.log("Passed Data==",data)
-    return authAxios(getActivityQc, data)
-  }
-
-  export function postActivitiQcData(res) {
-
-    // console.log('Response===',res)
     let data = {
       'activity_id':res.activity_id,
       'call_mode': res.call_mode 
@@ -123,4 +113,15 @@ export function getEmpLeave(leave_type , emp_id, year) {
     
     console.log('Data==',data)
     return authAxios(getActivityQc, data)
+  }
+
+
+  export function postActivtyInventory(activity_invt_process) {
+    let data = {};
+    if (activity_invt_process) {
+      data['activity_data'] = activity_invt_process;
+    }
+    console.log('Data to be sent:', data);
+    return authAxiosPost(processActivity, data)
+  
   }

@@ -27,13 +27,6 @@ const Container = styled.ScrollView.attrs({
   padding: 20px 10px;
 `;
 
-const Title = styled.Text`
-  font-size: 22px;
-  font-weight: bold;
-  text-align: center;
-  margin-bottom: 15px;
-`;
-
 const Card = styled.View`
   background-color: #fff;
   border-radius: 12px;
@@ -65,7 +58,7 @@ const SubText = styled.Text`
 `;
 
 const StatusBadge = styled.View`
-  background-color: ${(props) => props.bgColor || '#ffca28'};
+  background-color: ${(props) => props.bgColor || '#28a745'};
   border-radius: 5px;
   padding: 4px 8px;
 `;
@@ -78,10 +71,8 @@ const StatusText = styled.Text`
 
 const ButtonRow = styled.View`
   flex-direction: row;
-  flex-wrap: wrap;
-  justify-content: space-evenly;
+  justify-content: center;
   margin-top: 10px;
-  align-items: center;
 `;
 
 const ActionButton = styled.TouchableOpacity`
@@ -89,7 +80,6 @@ const ActionButton = styled.TouchableOpacity`
   width: ${(props) => (props.fullWidth ? `${width * 0.85}px` : `${width * 0.4}px`)};
   padding: 10px;
   border-radius: 8px;
-  margin-bottom: 10px;
 `;
 
 const ButtonText = styled.Text`
@@ -100,45 +90,32 @@ const ButtonText = styled.Text`
 `;
 
 // Main Screen Component
-const ActivityScreen = ({ data }) => {
+const ActivityScreen = () => {
     const navigation = useNavigation();
     const router = useRouter();
-    const [isModalVisible, setModalVisible] = useState(false); // Modal visibility state
-    const [selectedActivity, setSelectedActivity] = useState(null); // Selected activity details
+    const [isModalVisible, setModalVisible] = useState(false);
+    const [selectedActivity, setSelectedActivity] = useState(null);
     const [activities, setActivities] = useState([]);
 
     useEffect(() => {
-        fetchActivityDetails();
+        fetchCompletedActivities();
     }, []);
 
-    const fetchActivityDetails = async () => {
+    const fetchCompletedActivities = async () => {
         try {
             const res = await getActivityList();
-            let filteredActivities = res?.data?.a_list || [];
-            if (data === 'PENDING') {
-                filteredActivities = filteredActivities.filter(
-                    (activity) =>
-                        activity.status === 'PENDING' ||
-                        activity.no_pending > 0
-                );
-            } else if (data === 'COMPLETED') {
-                filteredActivities = filteredActivities.filter(
-                    (activity) =>
-                        activity.status === 'COMPLETED' ||
-                        (activity.no_cancelled === 0 &&
-                            activity.no_hold === 0 &&
-                            activity.no_pending === 0)
-                );
-            }
-            setActivities(filteredActivities || []);
+            const completedActivities = (res?.data?.a_list || []).filter(
+                (activity) => activity.status === 'COMPLETED' || (activity.no_completed !== 0 && activity.no_pending == 0 && activity.no_hold == 0)
+            );
+            setActivities(completedActivities);
         } catch (error) {
             console.error('Error fetching activities:', error);
         }
     };
 
     const handleViewDetails = (activity) => {
-        setSelectedActivity(activity); // Set the selected activity details
-        setModalVisible(true); // Show the modal
+        setSelectedActivity(activity);
+        setModalVisible(true);
     };
 
     const handleBackPress = () => {
@@ -148,31 +125,17 @@ const ActivityScreen = ({ data }) => {
     return (
         <GradientBackground>
             <HeaderComponent
-                headerTitle={
-                    data === 'COMPLETED'
-                        ? 'Completed Activities'
-                        : data === 'PENDING'
-                        ? 'Pending Activities'
-                        : 'All Activities'
-                }
+                headerTitle="Completed Activities"
                 onBackPress={handleBackPress}
             />
 
             <Container>
                 {activities.map((activity) => (
-                    <Card key={activity.ref_num}>
+                    <Card key={activity.activity_id}>
                         <Row>
                             <BoldText>{activity.ref_num}</BoldText>
-                            <StatusBadge
-                                bgColor={
-                                    activity.status === 'COMPLETED'
-                                        ? '#28a745'
-                                        : activity.status === 'PENDING'
-                                        ? '#ffca28'
-                                        : '#007bff'
-                                }
-                            >
-                                <StatusText>{activity.status}</StatusText>
+                            <StatusBadge>
+                                <StatusText>COMPLETED</StatusText>
                             </StatusBadge>
                         </Row>
                         <SubText>Due Date: {activity.due_date || 'N/A'}</SubText>
@@ -191,7 +154,6 @@ const ActivityScreen = ({ data }) => {
                 ))}
             </Container>
 
-            {/* Modal Component */}
             {selectedActivity && (
                 <ModalComponent
                     isVisible={isModalVisible}

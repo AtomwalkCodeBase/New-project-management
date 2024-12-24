@@ -4,7 +4,7 @@ import styled from 'styled-components/native';
 import { useRoute, useNavigation } from '@react-navigation/native';
 import HeaderComponent from '../components/HeaderComponent';
 import { LinearGradient } from 'expo-linear-gradient';
-import { postActivitiQcData } from '../services/productServices';
+import { getActivitiQcData, postActivtyInventory } from '../services/productServices';
 import SubmitButton from '../components/SubmitButton';
 import { colors } from '../Styles/appStyle';
 
@@ -101,17 +101,40 @@ const QcUpdate = (props) => {
 
   const fetchQcData = async () => {
     try {
-      const response = await postActivitiQcData(data);
+      const response = await getActivitiQcData(data);
       setQcData(response.data);
     } catch (error) {
       console.error('Error fetching QC data:', error);
     }
   };
 
-  const handleUpdateQcData = () => {
-    console.log('Updating QC data with:', qcData);
-    // Add logic to save QC data
-  };
+  // const handleUpdateQcData = () => {
+  //   console.log('Updating QC data with:', qcData);
+  //   // Add logic to save QC data
+  // };
+  const handleUpdateQcData = async (item) => {
+      
+      
+      const payload = {
+        activity_id: id, 
+        call_mode: 'QC_DATA',
+        qc_actual: 'test'
+      };
+    
+      console.log('Updating inventory for item:', payload);
+    
+      try {
+        const res = await postActivtyInventory(payload);
+        console.log('Success Response:', res.data);
+        Alert.alert('Success', `Inventory for ${item.item_name} updated successfully!`);
+      } catch (error) {
+        console.error('Error updating inventory:', error.response || error.message);
+        Alert.alert(
+          'Error',
+          `Failed to update inventory. ${error.response?.data?.message || 'Please try again later.'}`
+        );
+      }
+    };
 
   const handleInputChange = (index, value) => {
     const updatedData = [...qcData];
@@ -119,6 +142,7 @@ const QcUpdate = (props) => {
     setQcData(updatedData);
   };
 
+  console.log('Fetched Qc Data==',qcData)
   return (
     <GradientBackground>
       <HeaderComponent headerTitle="Quality Check Data" onBackPress={navigation.goBack} />
@@ -134,7 +158,7 @@ const QcUpdate = (props) => {
             />
             <SubmitButton
               label="Update QC Data"
-              onPress={handleUpdateQcData}
+              onPress={(value) => handleUpdateQcData(index, value)}
               bgColor={colors.primary}
               textColor="white"
             />
