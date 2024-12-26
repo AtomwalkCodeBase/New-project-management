@@ -227,6 +227,13 @@ const ActivityScreen = (props) => {
         return uniqueRefNums.map((ref_num) => ({ label: ref_num, value: ref_num }));
     };
 
+    const handleCompleteClick = (id) => {
+        router.push({
+            pathname: 'MarkCompleteScreen',
+            params: { ref_num: id },
+        });
+    };
+
     const handleInventoryClick = (id) => {
         router.push({
             pathname: 'InventoryData',
@@ -285,7 +292,8 @@ const ActivityScreen = (props) => {
                     <>
                         <ActionButton
                             bgColor="#28a745"
-                            onPress={() => alert('Mark as Completed')}
+                            // onPress={() => alert('Mark as Completed')}
+                            onPress={() => handleCompleteClick(activity.activity_id)}
                         >
                             <ButtonText>Mark as Completed</ButtonText>
                         </ActionButton>

@@ -140,7 +140,7 @@ const InventoryUpdate = (props) => {
   // Handle the inventory update for a specific item
   const handleUpdateInventory = async (item) => {
     const item_list = [{ 
-      curr_consumed_quantity: item.curr_consumed_quantity, 
+      curr_consumed_quantity: `${item.curr_consumed_quantity}`, 
       item_number: item.item_number 
     }];
     
