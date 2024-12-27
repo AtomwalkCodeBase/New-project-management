@@ -12,10 +12,11 @@ const { width } = Dimensions.get('window');
 
 // Gradient Background Component
 const GradientBackground = styled(LinearGradient).attrs({
-  colors: ['#c2e9fb', '#ffdde1'],
+  colors: ['#ffd6b3', '#f7dce0'],
   start: { x: 0, y: 0 },
   end: { x: 1, y: 1 },
 })`
+/* flex: 1; */
   align-items: center;
   height: 100%;
 `;
@@ -25,8 +26,9 @@ const Container = styled(ScrollView).attrs({
   showsVerticalScrollIndicator: false,
   showsHorizontalScrollIndicator: false,
 })`
-  flex: 1;
+  /* flex: 1; */
   padding: 15px;
+  height: 100%;
 `;
 
 // Title Text
@@ -112,6 +114,7 @@ const ButtonText = styled.Text`
 
 const InventoryUpdate = (props) => {
   const id = props.id;
+  const call_type = props.type;
   const navigation = useNavigation();
   const [inventoryData, setInventoryData] = useState([]);
 
@@ -131,25 +134,48 @@ const InventoryUpdate = (props) => {
   };
 
   // Handle change in input value for each inventory item
-  const handleInputChange = (index, value) => {
-    const updatedData = [...inventoryData];
-    updatedData[index].curr_consumed_quantity = parseFloat(value) || 0;
-    setInventoryData(updatedData);
-  };
+  // Handle change in input value for each inventory item
+const handleInputChange = (itemNumber, value) => {
+  // Allow only numbers and a single decimal point
+  const sanitizedValue = value.replace(/[^0-9.]/g, '').replace(/(\..*?)\..*/g, '$1');
+  
+  const updatedData = inventoryData.map((item) =>
+    item.item_number === itemNumber
+      ? { ...item, curr_consumed_quantity: sanitizedValue } // Update the specific item's quantity
+      : item
+  );
+
+  setInventoryData(updatedData);
+};
+
+  
 
   // Handle the inventory update for a specific item
   const handleUpdateInventory = async (item) => {
-    const item_list = [{ 
-      curr_consumed_quantity: `${item.curr_consumed_quantity}`, 
-      item_number: item.item_number 
-    }];
-    
+    // Check condition only for INV_IN
+    if (call_type === 'INV_IN') {
+      const totalConsumed = item.already_consumed_qty + item.curr_consumed_quantity;
+  
+      if (totalConsumed > item.allocated_qty) {
+        Alert.alert(
+          'Error',
+          `Entered consumption exceeds allocated quantity. Allocated: ${item.allocated_qty} ${item.item_base_unit}, Already Consumed: ${item.already_consumed_qty} ${item.item_base_unit}.`
+        );
+        return;
+      }
+    }
+  
+    const item_list = [
+      {
+        curr_quantity: `${item.curr_consumed_quantity}`,
+        item_number: item.item_number,
+      },
+    ];
+  
     const payload = {
-      item_number: item.item_number,
-      curr_consumed_quantity: `${item.curr_consumed_quantity}`,
-      activity_id: id, 
-      call_mode: 'INV_IN',
-      item_list: item_list,
+      activity_id: id,
+      call_mode: call_type,
+      item_list,
     };
   
     console.log('Updating inventory for item:', payload);
@@ -158,96 +184,158 @@ const InventoryUpdate = (props) => {
       const res = await postActivtyInventory(payload);
       console.log('Success Response:', res.data);
       Alert.alert('Success', `Inventory for ${item.item_name} updated successfully!`);
+      // Refresh inventory data
+      fetchInventoryData();
     } catch (error) {
-      console.error('Error updating inventory:', error.response || error.message);
-      Alert.alert(
-        'Error',
-        `Failed to update inventory. ${error.response?.data?.message || 'Please try again later.'}`
-      );
+      console.error('Error updating inventory:', error);
+      Alert.alert('Error', 'Failed to update inventory. Please try again later.');
     }
   };
+  
 
-  const handleUpdateProduction = async (item) => {
-    const payload = {
+  const handleUpdateAllItems = async () => {
+    // Determine which flow_type to filter based on call_type
+    const flowType = call_type === 'INV_IN' ? 'C' : 'P';
+  
+    // Filter items where flow_type matches and curr_consumed_quantity is greater than 0
+    const itemsToUpdate = inventoryData.filter(item => item.flow_type === flowType && item.curr_consumed_quantity > 0);
+  
+    // If `call_type` is 'INV_IN', check if any item exceeds its allocated quantity
+    if (call_type === 'INV_IN') {
+      for (let item of itemsToUpdate) {
+        // Ensure the values are numbers (parse and default to 0 if NaN)
+        const alreadyConsumed = parseFloat(item.already_consumed_qty) || 0;
+        const currentConsumed = parseFloat(item.curr_consumed_quantity) || 0;
+        const allocatedQty = parseFloat(item.allocated_qty) || 0;
+  
+        // Calculate the total consumed
+        const totalConsumed = alreadyConsumed + currentConsumed;
+  
+        if (totalConsumed > allocatedQty) {
+          Alert.alert(
+            'Error',
+            `Entered consumption for ${item.item_name} exceeds allocated quantity. Allocated: ${allocatedQty} ${item.item_base_unit}, Already Consumed: ${alreadyConsumed} ${item.item_base_unit}.`
+          );
+          return; // Stop the update if any item exceeds the allocated quantity
+        }
+      }
+    }
+  
+    // Map the items to be updated into the required payload structure
+    const item_list = itemsToUpdate.map(item => ({
+      curr_quantity: `${item.curr_consumed_quantity}`,
       item_number: item.item_number,
-      produced_qty: `${item.curr_consumed_quantity}`,
+    }));
+  
+    if (item_list.length === 0) {
+      Alert.alert('No Items to Update', 'Please enter valid quantities for at least one item.');
+      return;
+    }
+  
+    const payload = {
       activity_id: id,
-      call_mode: 'INV_IN',
+      call_mode: call_type,
+      item_list,
     };
   
-    console.log('Updating production for item:', payload);
+    console.log(`Updating inventory for all items with call_mode: ${call_type}`, payload);
   
     try {
       const res = await postActivtyInventory(payload);
-      console.log('Success Response ==', res.data);
-  
-      Alert.alert('Success', `Production for ${item.item_name} updated successfully!`);
+      console.log('Success Response:', res.data);
+      Alert.alert('Success', `Inventory updated successfully for all items!`);
+      // Refresh inventory data
+      fetchInventoryData();
     } catch (error) {
-      console.error('Error updating production:', error);
-  
-      Alert.alert(
-        'Error',
-        'Failed to update production. Please try again later.'
-      );
+      console.error('Error updating inventory:', error);
+      Alert.alert('Error', 'Failed to update inventory. Please try again later.');
     }
   };
   
   
+  
+  
+  
+  
+
+ 
+  
+  console.log('Call type===',call_type)
 
   console.log('Fetched Inventory--',inventoryData)
 
   return (
     <GradientBackground>
-    <HeaderComponent headerTitle="Inventory Process" onBackPress={navigation.goBack} />
-    <Container>
-      {inventoryData.map((item, index) => (
-        <Card key={index}>
-          <Row>
-            <BoldText>{item.item_name}</BoldText>
-          </Row>
-          <SubText>Batch: {item.bin_location || item.batch_number || 'N/A'}</SubText>
-          <SubText>Allocated Qty: {item.allocated_qty} {item.item_base_unit}</SubText>
-          {/* <SubText>Already Consumed Qty: {item.already_consumed_qty} {item.item_base_unit}</SubText> */}
-          <SubText>
-            {item.flow_type === 'C' 
-              ? `Already Consumed Qty: ${item.already_consumed_qty} ${item.item_base_unit}` 
-              : `Already Produced Qty: ${item.already_consumed_qty || 'N/A'} ${item.item_base_unit}`
-            }
-          </SubText>
-          <SubText>
-            {item.flow_type === 'C' 
-              ? `Released & Wastage: ${item.released_qty} ${item.item_base_unit} & ${item.wastage_qty} ${item.item_base_unit}` 
-              : `Produced Qty: ${item.released_qty || 'N/A'} ${item.item_base_unit}`
-            }
-          </SubText>
-          <InputRow>
-            <TextInputStyled
-              placeholder={
-                item.flow_type === 'C' 
-                  ? "Enter consumption quantity" 
-                  : "Enter production quantity"
-              }
-              keyboardType="numeric"
-              value={String(item.curr_consumed_quantity || '')}
-              onChangeText={(value) => handleInputChange(index, value)}
+      <HeaderComponent headerTitle={call_type === 'INV_IN' ? 'Inventory-In Process' : 'Inventory-Out Process'} onBackPress={navigation.goBack} />
+      <Container>
+        {inventoryData
+          .filter((item) =>
+            call_type === 'INV_IN' ? item.flow_type === 'C' : item.flow_type === 'P'
+          )
+          .map((item, index) => (
+            <Card key={index}>
+              <Row>
+                <BoldText>{item.item_number} [{item.item_name}]</BoldText>
+              </Row>
+              {item.flow_type === 'C' &&(
+                <>
+                  <SubText>Batch: {item.bin_location || item.batch_number || 'N/A'}</SubText>
+                  <SubText>Allocated Qty: {item.allocated_qty} {item.item_base_unit}</SubText>
+                  </>
+                )}
+              
+              <SubText>
+                {item.flow_type === 'C' 
+                  ? `Already Consumed Qty: ${item.already_consumed_qty} ${item.item_base_unit}` 
+                  : `Estimated Qty: ${item.estimated_qty || 'N/A'} ${item.item_base_unit}`
+                }
+              </SubText>
+              <SubText>
+                {item.flow_type === 'C' 
+                  ? `Released & Wastage: ${item.released_qty} ${item.item_base_unit} & ${item.wastage_qty} ${item.item_base_unit}` 
+                  : `Produced Qty: ${item.already_consumed_qty || 'N/A'} ${item.item_base_unit}`
+                }
+              </SubText>
+              <InputRow>
+              <TextInputStyled
+                placeholder={
+                  item.flow_type === 'C' 
+                    ? "Enter consumption quantity" 
+                    : "Enter production quantity"
+                }
+                keyboardType="numeric"
+                value={String(item.curr_consumed_quantity || '')} // Ensure it's a string
+                onChangeText={(value) => handleInputChange(item.item_number, value)}
+              />
+
+
+                <UnitText>{item.item_base_unit}</UnitText>
+              </InputRow>
+              
+              <ActionButton onPress={() => 
+                   handleUpdateInventory(item)}>
+            <ButtonText>{item.flow_type === 'C' ? "Update Consumption" : "Update Production"}</ButtonText>
+          </ActionButton>
+            </Card>
+          ))}
+         
+
+          {call_type === 'INV_IN' || call_type === 'INV_OUT' ? (
+            <SubmitButton
+              label={call_type === 'INV_IN' ? 'Update Inventory' : 'Update Production'}
+              onPress={handleUpdateAllItems}
+              bgColor={colors.primary}
+              textColor="white"
             />
-            <UnitText>{item.item_base_unit}</UnitText>
-          </InputRow>
-          <SubmitButton
-            label={item.flow_type === 'C' ? "Update Consumption" : "Update Production"}
-            onPress={() => 
-              item.flow_type === 'C'
-                ? handleUpdateInventory(item)
-                : handleUpdateProduction(item)
-            }
-            bgColor={colors.primary}
-            textColor="white"
-          />
-        </Card>
-      ))}
-    </Container>
-  </GradientBackground>
-);
+          ) : null}
+
+
+
+          
+      </Container>
+    </GradientBackground>
+  );
+  
 };
 
 export default InventoryUpdate;

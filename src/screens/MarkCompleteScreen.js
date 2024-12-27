@@ -12,8 +12,8 @@ const { width, height } = Dimensions.get('window');
 
 // Styled Components
 const GradientBackground = styled(LinearGradient).attrs({
-  colors: ['#c2e9fb', '#ffdde1'],
-  start: { x: 0, y: 0 },
+  colors: ['#f6811b' ,'rgb(253, 177, 111)', '#ffdde1'],
+    start: { x: 0, y: 0 },
   end: { x: 1, y: 1 },
 })`
   flex: 1;
@@ -181,17 +181,17 @@ const MarkCompleteScreen = (props) => {
               <Card key={index}>
                 <BoldText>{item.qc_name}</BoldText>
                 <SubText>Permissible Value: {item.qc_value}</SubText>
-                <TextInputStyled
+                {/* <TextInputStyled
                   placeholder="Enter actual value"
                   value={String(item.qc_actual || '')}
                   onChangeText={(value) => handleInputChange(index, value)}
-                />
-                <SubmitButton
+                /> */}
+                {/* <SubmitButton
                   label="Update QC Data"
                   onPress={() => handleUpdateQcData(item)}
                   bgColor={colors.primary}
                   textColor="white"
-                />
+                /> */}
               </Card>
             ))}
           </Container>

@@ -12,7 +12,7 @@ const { width, height } = Dimensions.get('window');
 
 // Styled Components
 const GradientBackground = styled(LinearGradient).attrs({
-  colors: ['#c2e9fb', '#ffdde1'],
+  colors: ['#ffd6b3', '#f7dce0'],
   start: { x: 0, y: 0 },
   end: { x: 1, y: 1 },
 })`
@@ -118,22 +118,22 @@ const QcUpdate = (props) => {
       const payload = {
         activity_id: id, 
         call_mode: 'QC_DATA',
-        qc_actual: 'test'
+        qc_data: qcData
       };
     
       console.log('Updating inventory for item:', payload);
     
-      try {
-        const res = await postActivtyInventory(payload);
-        console.log('Success Response:', res.data);
-        Alert.alert('Success', `Inventory for ${item.item_name} updated successfully!`);
-      } catch (error) {
-        console.error('Error updating inventory:', error.response || error.message);
-        Alert.alert(
-          'Error',
-          `Failed to update inventory. ${error.response?.data?.message || 'Please try again later.'}`
-        );
-      }
+       try {
+            const res = await postActivtyInventory(payload);
+            console.log('Success Response:', res.data);
+            Alert.alert('Success', `Inventory for ${item.item_name} updated successfully!`);
+          } catch (res) {
+            console.error('Error updating inventory:',res);
+            Alert.alert(
+              'Error',
+              `Failed to update inventory. Please try again later.'}`
+            );
+          }
     };
 
   const handleInputChange = (index, value) => {

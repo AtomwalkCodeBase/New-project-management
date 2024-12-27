@@ -3,7 +3,7 @@ import { View, Text, FlatList, Dimensions, ScrollView, TouchableOpacity } from '
 import styled from 'styled-components/native';
 import InfoCard from '../components/InfoCard';
 import { AppContext } from '../../context/AppContext';
-import { getCompanyInfo } from '../services/authServices';
+import { getCompanyInfo, getProfileInfo } from '../services/authServices';
 import { LinearGradient } from 'expo-linear-gradient';
 import { StatusBar } from 'expo-status-bar';
 import { useRouter } from 'expo-router';
@@ -17,7 +17,7 @@ const Container = styled.View`
 `;
 
 const GradientBackground = styled(LinearGradient).attrs({
-  colors: ['#c2e9fb', '#ffdde1'],
+  colors: ['#ffd6b3', '#f7dce0'],
   start: { x: 0, y: 0 },
   end: { x: 1, y: 1 },
 })`
@@ -26,9 +26,31 @@ const GradientBackground = styled(LinearGradient).attrs({
   height: 100%;
 `;
 
+const CompanyContainer = styled.View`
+  display: flex;
+  flex-direction: row;
+  /* height: 20%; */
+  width: 100%;
+  padding: 10px;
+  background-color: #fb9032;
+  align-items: center;
+  gap: 20PX;
+  /* justify-content: space-between; */
+`;
+const CompanyTextContainer = styled.View`
+  display: flex;
+  align-items: flex-start;
+  
+`;
+const ProfileTextContainer = styled.View`
+  display: flex;
+  align-items: center;
+  padding: 20px;
+  
+`;
 const LogoContainer = styled.View`
-  width: ${width * 0.25}px;
-  height: ${width * 0.25}px;
+  width: ${width * 0.20}px;
+  height: ${width * 0.20}px;
   background-color: #ffffff;
   border-radius: ${width * 0.25}px;
   align-items: center;
@@ -100,6 +122,7 @@ const HomePage = () => {
   const router = useRouter();
   const { userToken } = useContext(AppContext);
   const [company, setCompany] = useState({});
+  // const [profile, setProfile] = useState([]);
   const [loading, setLoading] = useState(false);
   const [activities, setActivities] = useState([]);
   const [total, setTotal] = useState(0);
@@ -107,10 +130,22 @@ const HomePage = () => {
   const [completed, setCompleted] = useState(0);
   const [pending, setPending] = useState(0);
   const [overdue, setOverdue] = useState(0);
+  const [isManager, setIsManager] = useState(false) 
 
   useEffect(() => {
     setLoading(true);
     fetchActivityDetails();
+    // getProfileInfo()
+    //   .then((res) => {
+    //       setProfile(res.data);
+    //       setIsManager(res.data.user_group.is_manager);
+    //       setLoading(false);
+    //   })
+    //   .catch((error) => {
+    //       setLoading(false);
+    //       setIsManager(false);
+    //   });
+
     getCompanyInfo()
       .then((res) => {
         setCompany(res.data);
@@ -120,6 +155,7 @@ const HomePage = () => {
   }, []);
 
 
+  // console.log('Profile===',profile?.emp_data?.name)
       
   
   const fetchActivityDetails = () => {
@@ -150,7 +186,7 @@ const HomePage = () => {
       pathname: 'ActivityList' 
     });
   };
-  const handleReviewsClick = () => alert('Reviews Clicked');
+  // const handleReviewsClick = () => alert('Reviews Clicked');
   const handleCompletedClick = () => {
     router.push({
       pathname: 'ActivityCompleted' 
@@ -165,35 +201,49 @@ const HomePage = () => {
         params: { ref_num: id },
     });
 };
-  const handleOverdueClick = () => alert('Overdue Activities Clicked');
+  // const handleOverdueClick = () => alert('Overdue Activities Clicked');
+  const handleOverdueClick = () => {
+    router.push({
+      pathname: 'OverDue' 
+    });
+  };
 
   // console.log('Activity List======',activities)
 
   return (
     <Container>
-      <StatusBar barStyle="light-content" backgroundColor="#c2e9fb" />
+      <StatusBar barStyle="light-content" backgroundColor="rgb(252, 128, 20)" />
       <GradientBackground>
-        <LogoContainer>
-          <Logo source={{ uri: company.image || 'https://home.atomwalk.com/static/media/Atom_walk_logo-removebg-preview.21661b59140f92dd7ced.png' }} />
-        </LogoContainer>
+      <CompanyContainer>
+      <LogoContainer>
+      <Logo source={{ uri: company.image || 'https://home.atomwalk.com/static/media/Atom_walk_logo-removebg-preview.21661b59140f92dd7ced.png' }} />
+    </LogoContainer>
+        <CompanyTextContainer>
         <CompanyName>{company.name || 'Atomwalk Technologies'}</CompanyName>
         <SubHeader>Welcome to Atomwalk Office!</SubHeader>
+        </CompanyTextContainer>
+        
+        </CompanyContainer>
+        <ProfileTextContainer>
+          <CompanyName>My Activities</CompanyName>
+        
+        </ProfileTextContainer>
+       
 
         {/* Cards Layout */}
         <Row>
-          <InfoCard number={total} label="Project Activities" gradientColors={['#007bff', '#00c6ff']} onPress={handleProjectClick} />
-          <InfoCard number={review} label="Reviews" gradientColors={['#6dd5ed', '#2193b0']} onPress={handleReviewsClick} />
+          <InfoCard number={total} label="Total" gradientColors={['#007bff', '#00c6ff']} onPress={handleProjectClick} />
+          <InfoCard number={completed} label="Completed" gradientColors={['#38ef7d', '#11998e']} onPress={handleCompletedClick} />
         </Row>
 
         <Row>
-          <InfoCard number={completed} label="Completed Activities" gradientColors={['#38ef7d', '#11998e']} onPress={handleCompletedClick} />
           <InfoCard number={pending} label="Pending/On Hold" gradientColors={['#f09819', '#ff512f']} onPress={handlePendingClick} />
-          <InfoCard number={overdue} label="Over Due Activities" gradientColors={['#e52d27', '#b31217']} onPress={handleOverdueClick} />
+          <InfoCard number={overdue} label="Over Due" gradientColors={['#e52d27', '#b31217']} onPress={handleOverdueClick} />
         </Row>
 
         {/* Scrollable Activity List */}
         <ActivityContainer>
-        <Text style={{ fontSize: 18, fontWeight: 'bold', marginBottom: 10, color: '#454545' }}>Activity Reference</Text>
+        <Text style={{ fontSize: 18, fontWeight: 'bold', marginBottom: 10, color: '#454545' }}>My Projects</Text>
           <FlatList
             data={[...activities].reverse()}
             keyExtractor={(item) => item.activity_id}

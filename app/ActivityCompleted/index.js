@@ -1,14 +1,14 @@
 import { StyleSheet, Text, View } from 'react-native'
 import React from 'react'
-import AllActivity from '../../src/screens/AllActivity'
-import CompletedActivity from '../../src/screens/CompletedActivity'
+import ActivityScreen from '../../src/screens/AllActivity'
 
 const index = () => {
 
   return (
     <View style={{ flex: 1}}>
           {/* <AllActivity/> */}
-          <CompletedActivity/>
+          {/* <CompletedActivity/> */}
+      <ActivityScreen data="Completed"/>
     </View>
   )
 }

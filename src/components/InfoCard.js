@@ -30,7 +30,7 @@ const NumberText = styled.Text`
 `;
 
 const LabelText = styled.Text`
-  font-size: 12px;
+  font-size: 14px;
   color: #ffffff;
   margin-top: 4px;
   font-weight: 600;

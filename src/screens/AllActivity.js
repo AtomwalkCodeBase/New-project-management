@@ -11,7 +11,7 @@ import { getActivityList } from '../services/productServices';
 const { width } = Dimensions.get('window');
 
 const GradientBackground = styled(LinearGradient).attrs({
-    colors: ['#c2e9fb', '#ffdde1'],
+    colors: ['#ffd6b3', '#f7dce0'],
     start: { x: 0, y: 0 },
     end: { x: 1, y: 1 },
 })`
@@ -187,10 +187,18 @@ const ActivityScreen = (props) => {
                 return activity; // Return activity as-is if no condition matches
             });
     
-            // Filter activities if needed
+            // Filter activities based on activityType
             if (activityType === 'PENDING') {
                 fetchedActivities = fetchedActivities.filter(
                     (activity) => activity.status !== 'COMPLETED' && activity.no_pending !== 0
+                );
+            } else if (activityType === 'OverDue') {
+                fetchedActivities = fetchedActivities.filter(
+                    (activity) => activity.status === 'OVER-DUE'
+                );
+            } else if (activityType === 'Completed') {
+                fetchedActivities = fetchedActivities.filter(
+                    (activity) => activity.status === 'COMPLETED'
                 );
             }
     
@@ -199,6 +207,7 @@ const ActivityScreen = (props) => {
             console.error('Error fetching activities:', error);
         }
     };
+    
     
     
     
@@ -234,10 +243,10 @@ const ActivityScreen = (props) => {
         });
     };
 
-    const handleInventoryClick = (id) => {
+    const handleInventoryClick = (id,type) => {
         router.push({
             pathname: 'InventoryData',
-            params: { ref_num: id },
+            params: { ref_num: id, ref_type: type },
         });
     };
 
@@ -258,6 +267,19 @@ const ActivityScreen = (props) => {
     };
 
     const getBadgeColor = (status) => {
+        switch (status) {
+            case 'COMPLETED':
+                return '#28a745'; // Green for completed
+            case 'OVER-DUE':
+                return '#ff4d4d'; // Red for overdue
+            case 'IN PROGRESS':
+                return '#ffc107'; // Yellow for in progress
+            default:
+                return '#6c757d'; // Gray for unknown or default status
+        }
+    };
+
+    const getBadgeTextColor = (status) => {
         switch (status) {
             case 'COMPLETED':
                 return '#28a745'; // Green for completed
@@ -305,12 +327,20 @@ const ActivityScreen = (props) => {
                         </ActionButton>
                         <ActionButton
                             bgColor="#4285f4"
-                            onPress={() => handleInventoryClick(activity.activity_id)}
+                            onPress={() => handleInventoryClick(activity.activity_id,'INV_IN')}
                         >
                             <ButtonText>Inventory Update</ButtonText>
                         </ActionButton>
+                        <ActionButton
+                            bgColor="#4285f4"
+                            onPress={() => handleInventoryClick(activity.activity_id,'INV_OUT')}
+                        >
+                            <ButtonText>Production Update</ButtonText>
+                        </ActionButton>
                     </>
                 )}
+                {activity.status == 'COMPLETED' && (
+                    <>
                 <ActionButton
                     bgColor="#4285f4"
                     fullWidth={
@@ -320,6 +350,8 @@ const ActivityScreen = (props) => {
                 >
                     <ButtonText>View Details</ButtonText>
                 </ActionButton>
+                </>
+                )}
             </ButtonRow>
         </Card>
     );
@@ -327,7 +359,7 @@ const ActivityScreen = (props) => {
     return (
         <GradientBackground>
             <HeaderComponent
-                headerTitle={activityType === 'PENDING' ? 'Pending Activities' : 'All Activities'}
+                headerTitle={activityType === 'PENDING' ? 'Pending Activities' : activityType === 'OverDue' ? 'OverDue Activities' : activityType === 'Completed' ? 'Completed Activities' : 'All Activities'}
                 onBackPress={handleBackPress}
             />
 
