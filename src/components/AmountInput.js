@@ -8,6 +8,7 @@ const Input = styled.TextInput`
   padding: 10px;
   border-radius: 8px;
   font-size: 16px;
+  width: 80%;
 `;
 
 const Label = styled.Text`
@@ -19,7 +20,7 @@ const Label = styled.Text`
 const AmountInput = ({ error, label, claimAmount, setClaimAmount }) => {
   return (
     <>
-      <Label>{label}</Label>
+      {/* <Label>{label}</Label> */}
       <Input
         placeholder="Enter consumption quantity"
         keyboardType="numeric"

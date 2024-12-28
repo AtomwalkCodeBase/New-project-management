@@ -9,14 +9,24 @@ const ModalComponent = ({ isVisible, onClose, activityDetails }) => {
       <ModalContainer>
         <ModalContent>
           {/* Header */}
-          <ModalTitle>{activityDetails.order}</ModalTitle>
+          <ModalTitle>{activityDetails.order || activityDetails.activity}</ModalTitle>
 
           {/* Activity Details */}
           {activityDetails ? (
             <>
+            {activityDetails.activity && (
+                <DetailText>
+                  <BoldText>Activity Name:</BoldText> {activityDetails.activity}
+                </DetailText>
+              )}
               <DetailText>
-                <BoldText>Project for Order:</BoldText> {activityDetails.order}
+                <BoldText>Order:</BoldText> {activityDetails.order}
               </DetailText>
+              {activityDetails.user && (
+                <DetailText>
+                  <BoldText>Activity Name:</BoldText> {activityDetails.user}
+                </DetailText>
+              )}
               <DetailText>
                 <BoldText>Planned Start Date:</BoldText> {activityDetails.plannedStart}
               </DetailText>
@@ -26,9 +36,13 @@ const ModalComponent = ({ isVisible, onClose, activityDetails }) => {
               <DetailText>
                 <BoldText>Planned Duration:</BoldText> {activityDetails.plannedDuration} Days
               </DetailText>
-              <DetailText>
-                <BoldText>Actual Duration:</BoldText> {activityDetails.actualDuration} Days
-              </DetailText>
+
+              {activityDetails.actualDuration && (
+                <DetailText>
+                  <BoldText>Actual Duration:</BoldText> {activityDetails.actualDuration} Days
+                </DetailText>
+              )}
+
             </>
           ) : (
             <Text>No details available.</Text>

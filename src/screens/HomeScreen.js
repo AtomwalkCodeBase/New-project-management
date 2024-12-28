@@ -122,7 +122,7 @@ const HomePage = () => {
   const router = useRouter();
   const { userToken } = useContext(AppContext);
   const [company, setCompany] = useState({});
-  // const [profile, setProfile] = useState([]);
+  const [profile, setProfile] = useState([]);
   const [loading, setLoading] = useState(false);
   const [activities, setActivities] = useState([]);
   const [total, setTotal] = useState(0);
@@ -135,16 +135,16 @@ const HomePage = () => {
   useEffect(() => {
     setLoading(true);
     fetchActivityDetails();
-    // getProfileInfo()
-    //   .then((res) => {
-    //       setProfile(res.data);
-    //       setIsManager(res.data.user_group.is_manager);
-    //       setLoading(false);
-    //   })
-    //   .catch((error) => {
-    //       setLoading(false);
-    //       setIsManager(false);
-    //   });
+    getProfileInfo()
+      .then((res) => {
+          setProfile(res.data);
+          setIsManager(res?.data.user_group?.is_manager);
+          setLoading(false);
+      })
+      .catch((error) => {
+          setLoading(false);
+          setIsManager(false);
+      });
 
     getCompanyInfo()
       .then((res) => {
@@ -175,8 +175,8 @@ const HomePage = () => {
         setPending(res?.data?.pending_count);
         setOverdue(res?.data?.over_due_count);
       })
-      .catch((res) => {
-        console.log(res);
+      .catch((error) => {
+        console.log('Error',error);
       });
   };
   
@@ -232,13 +232,13 @@ const HomePage = () => {
 
         {/* Cards Layout */}
         <Row>
-          <InfoCard number={total} label="Total" gradientColors={['#007bff', '#00c6ff']} onPress={handleProjectClick} />
-          <InfoCard number={completed} label="Completed" gradientColors={['#38ef7d', '#11998e']} onPress={handleCompletedClick} />
+          <InfoCard number={total} label="TOTAL" gradientColors={['#007bff', '#00c6ff']} onPress={handleProjectClick} />
+          <InfoCard number={completed} label="DONE" gradientColors={['#38ef7d', '#11998e']} onPress={handleCompletedClick} />
         </Row>
 
         <Row>
-          <InfoCard number={pending} label="Pending/On Hold" gradientColors={['#f09819', '#ff512f']} onPress={handlePendingClick} />
-          <InfoCard number={overdue} label="Over Due" gradientColors={['#e52d27', '#b31217']} onPress={handleOverdueClick} />
+          <InfoCard number={pending} label="PENDING" gradientColors={['#f09819', '#ff512f']} onPress={handlePendingClick} />
+          <InfoCard number={overdue} label="OVER DUE" gradientColors={['#e52d27', '#b31217']} onPress={handleOverdueClick} />
         </Row>
 
         {/* Scrollable Activity List */}

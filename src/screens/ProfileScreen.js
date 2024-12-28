@@ -13,7 +13,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 
 // Styled components
 const GradientBackground = styled(LinearGradient).attrs({
-  colors: ['#c2e9fb', '#ffdde1'],
+  colors: ['#ffd6b3', '#f7dce0'],
   start: { x: 0, y: 0 },
   end: { x: 1, y: 1 },
 })`
@@ -158,7 +158,7 @@ const ProfileScreen = () => {
     router.push({ pathname: 'ResetPassword' });
   };
 
-  
+  console.log('Profile Data==',profile)
 
   return (
     <>

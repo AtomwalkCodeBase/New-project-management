@@ -59,14 +59,15 @@ const SubText = styled.Text`
 
 const StatusBadge = styled.View`
     background-color: ${(props) => props.bgColor || '#ffca28'};
-    border-radius: 5px;
+    border: 2px solid ${(props) => props.bgColor || '#ffca28'};
+    border-radius: 20px;
     padding: 4px 8px;
 `;
 
 const StatusText = styled.Text`
     font-size: 12px;
     font-weight: bold;
-    color: #333;
+    color: ${(props) => props.textColor || '#454545'};
 `;
 
 const ButtonRow = styled.View`
@@ -271,7 +272,7 @@ const ActivityScreen = (props) => {
             case 'COMPLETED':
                 return '#28a745'; // Green for completed
             case 'OVER-DUE':
-                return '#ff4d4d'; // Red for overdue
+                return ' #FF5733'; // Red for overdue
             case 'IN PROGRESS':
                 return '#ffc107'; // Yellow for in progress
             default:
@@ -282,27 +283,27 @@ const ActivityScreen = (props) => {
     const getBadgeTextColor = (status) => {
         switch (status) {
             case 'COMPLETED':
-                return '#28a745'; // Green for completed
+                return '#fff'; // Green for completed
             case 'OVER-DUE':
-                return '#ff4d4d'; // Red for overdue
+                return '#fff'; // Red for overdue
             case 'IN PROGRESS':
-                return '#ffc107'; // Yellow for in progress
+                return '#454545'; // Yellow for in progress
             default:
-                return '#6c757d'; // Gray for unknown or default status
+                return '#454545'; // Gray for unknown or default status
         }
     };
     
 
     const dropdownData = getUniqueRefNums();
 
-    console.log('Activity List---',activities)
+    // console.log('Activity List---',activities)
 
     const renderItem = ({ item: activity }) => (
         <Card>
             <Row>
                 <BoldText>{activity.sale_order_no || activity.ref_num}</BoldText>
                 <StatusBadge bgColor={getBadgeColor(activity.status)}>
-                <StatusText>{activity.status}</StatusText>
+                <StatusText textColor={getBadgeTextColor(activity.status)}>{activity.status}</StatusText>
             </StatusBadge>
             </Row>
             <SubText>{activity.ref_num || 'None'}</SubText>
@@ -359,7 +360,7 @@ const ActivityScreen = (props) => {
     return (
         <GradientBackground>
             <HeaderComponent
-                headerTitle={activityType === 'PENDING' ? 'Pending Activities' : activityType === 'OverDue' ? 'OverDue Activities' : activityType === 'Completed' ? 'Completed Activities' : 'All Activities'}
+                headerTitle={activityType === 'PENDING' ? 'Pending Activities' : activityType === 'OverDue' ? 'OverDue Activities' : activityType === 'Completed' ? 'Completed Activities' : 'My Activities'}
                 onBackPress={handleBackPress}
             />
 

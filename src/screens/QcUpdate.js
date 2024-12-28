@@ -121,11 +121,11 @@ const QcUpdate = (props) => {
         qc_data: qcData
       };
     
-      console.log('Updating inventory for item:', payload);
+      // console.log('Updating inventory for item:', payload);
     
        try {
             const res = await postActivtyInventory(payload);
-            console.log('Success Response:', res.data);
+            // console.log('Success Response:', res.data);
             Alert.alert('Success', `Inventory for ${item.item_name} updated successfully!`);
           } catch (res) {
             console.error('Error updating inventory:',res);
@@ -142,7 +142,7 @@ const QcUpdate = (props) => {
     setQcData(updatedData);
   };
 
-  console.log('Fetched Qc Data==',qcData)
+  // console.log('Fetched Qc Data==',qcData)
   return (
     <GradientBackground>
       <HeaderComponent headerTitle="Quality Check Data" onBackPress={navigation.goBack} />

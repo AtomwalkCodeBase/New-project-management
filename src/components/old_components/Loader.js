@@ -35,7 +35,7 @@ const Loader = ({ visible = false }) => {
   return (
     <View style={[styles.container, { height, width }]}>
       <Animated.View style={[styles.loader, { transform: [{ scale: pulseAnim }] }]}>
-        <ActivityIndicator size="large" color={colors.blue} />
+        <ActivityIndicator size="large" color={`rgb(254, 171, 98)`} />
         <Text style={styles.loadingText}>Loading...</Text>
       </Animated.View>
     </View>
@@ -68,7 +68,7 @@ const styles = StyleSheet.create({
     marginTop: 15,
     fontSize: 16,
     fontWeight: 'bold',
-    color: colors.blue,
+    color:`rgb(246, 122, 14)`,
   },
 });
 

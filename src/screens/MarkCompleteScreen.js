@@ -12,8 +12,8 @@ const { width, height } = Dimensions.get('window');
 
 // Styled Components
 const GradientBackground = styled(LinearGradient).attrs({
-  colors: ['#f6811b' ,'rgb(253, 177, 111)', '#ffdde1'],
-    start: { x: 0, y: 0 },
+  colors: ['#ffd6b3', '#f7dce0'],
+  start: { x: 0, y: 0 },
   end: { x: 1, y: 1 },
 })`
   flex: 1;
@@ -119,6 +119,10 @@ const MarkCompleteScreen = (props) => {
     call_mode: 'QC_DATA',
   };
 
+  const handleBackPress = () => {
+    navigation.goBack();
+};
+
   const fetchQcData = async () => {
     try {
       const response = await getActivitiQcData(data);
@@ -129,41 +133,41 @@ const MarkCompleteScreen = (props) => {
     }
   };
 
-  const handleUpdateQcData = async (item) => {
+  const handleMarkAsCompleted = async (item) => {
     const payload = {
       activity_id: id,
-      call_mode: 'QC_DATA',
-      qc_actual: 'test',
+      call_mode: 'MARK_COMPLETE',
     };
 
     try {
-      // const res = await postActivtyInventory(payload);
-      Alert.alert('Success', `Inventory for ${item.item_name} updated successfully!`);
+      const res = await postActivtyInventory(payload);
+      Alert.alert('Success', `Activity Completed Successfully`);
+      handleBackPress();
     } catch (error) {
       Alert.alert(
         'Error',
-        `Failed to update inventory. ${error.response?.data?.message || 'Please try again later.'}`
+        `Failed to update Activity. ${error.response?.data?.message || 'Please try again later.'}`
       );
     }
   };
 
-  const handleMarkAsCompleted = async () => {
-    const payload = {
-      activity_id: id,
-      isCompleted: !isCompleted,
-    };
+  // const handleMarkAsCompleted = async () => {
+  //   const payload = {
+  //     activity_id: id,
+  //     isCompleted: !isCompleted,
+  //   };
 
-    try {
-      // const res = await postActivtyInventory(payload);
-      setIsCompleted(!isCompleted);
-      Alert.alert('Success', `Activity marked as ${!isCompleted ? 'completed' : 'incomplete'}`);
-    } catch (error) {
-      Alert.alert(
-        'Error',
-        `Failed to update activity status. ${error.response?.data?.message || 'Please try again later.'}`
-      );
-    }
-  };
+  //   try {
+  //     // const res = await postActivtyInventory(payload);
+  //     setIsCompleted(!isCompleted);
+  //     Alert.alert('Success', `Activity marked as ${!isCompleted ? 'completed' : 'incomplete'}`);
+  //   } catch (error) {
+  //     Alert.alert(
+  //       'Error',
+  //       `Failed to update activity status. ${error.response?.data?.message || 'Please try again later.'}`
+  //     );
+  //   }
+  // };
 
   const handleInputChange = (index, value) => {
     const updatedData = [...qcData];
