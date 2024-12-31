@@ -210,11 +210,6 @@ const ActivityScreen = (props) => {
     };
     
     
-    
-    
-    
-
-    
 
     const applyFilter = () => {
         if (!filterValue) {

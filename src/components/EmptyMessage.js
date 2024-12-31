@@ -7,7 +7,7 @@ const EmptyMessageContainer = styled.View`
   justify-content: center;
   align-items: center;
   padding: 20px;
-  background-color: #fff;
+  /* background-color: #fff; */
 `;
 
 const IconContainer = styled.View`
@@ -31,7 +31,7 @@ const EmptyMessage = (res) => {
   return (
     <EmptyMessageContainer>
       <IconContainer>
-        <Image source={require('../../assets/images/Tasks.png')} style={{ width: 120, height: 120 }} />
+        <Image source={require('../../assets/images/Tasks.png')} style={{ width: 100, height: 120 }} />
       </IconContainer>
       <MessageText>Nothing to Display</MessageText>
       <SubText>There are no {res.data} data found.</SubText>

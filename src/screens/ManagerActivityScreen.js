@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useMemo } from 'react';
-import { FlatList, Dimensions } from 'react-native';
+import { FlatList, Dimensions, View, TouchableOpacity } from 'react-native';
 import styled from 'styled-components/native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useNavigation, useFocusEffect } from 'expo-router';
@@ -8,6 +8,7 @@ import ModalComponent from '../components/ModalComponent';
 import DropdownPicker from '../components/DropdownPicker';
 import { getManagerActivityList } from '../services/productServices';
 import Loader from '../components/old_components/Loader';
+import EmptyMessage from '../components/EmptyMessage';
 
 const { width } = Dimensions.get('window');
 
@@ -19,13 +20,6 @@ const GradientBackground = styled(LinearGradient).attrs({
 })`
   flex: 1;
   align-items: center;
-`;
-
-const Title = styled.Text`
-  font-size: 22px;
-  font-weight: bold;
-  text-align: center;
-  margin-bottom: 15px;
 `;
 
 const Card = styled.View`
@@ -58,18 +52,6 @@ const SubText = styled.Text`
   font-size: 14px;
   color: #555;
   margin-bottom: 5px;
-`;
-
-const StatusBadge = styled.View`
-  background-color: ${(props) => props.bgColor || '#ffca28'};
-  border-radius: 20px;
-  padding: 4px 8px;
-`;
-
-const StatusText = styled.Text`
-  font-size: 12px;
-  font-weight: bold;
-  color: ${(props) => props.textColor || '#454545'};
 `;
 
 const ButtonRow = styled.View`
@@ -112,6 +94,19 @@ const ClearFilterText = styled.Text`
   font-weight: bold;
 `;
 
+const LoadMoreButton = styled.TouchableOpacity`
+  margin: 15px 0;
+  padding: 10px;
+  background-color: #28a745;
+  border-radius: 5px;
+`;
+
+const LoadMoreButtonText = styled.Text`
+  color: #fff;
+  font-weight: bold;
+  text-align: center;
+`;
+
 const ManagerActivityScreen = ({ activityType = 'PROJECT' }) => {
   const navigation = useNavigation();
   const [isModalVisible, setModalVisible] = useState(false);
@@ -119,6 +114,9 @@ const ManagerActivityScreen = ({ activityType = 'PROJECT' }) => {
   const [activities, setActivities] = useState([]);
   const [filterValue, setFilterValue] = useState('');
   const [loading, setLoading] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
+
+  const ITEMS_PER_PAGE = 20;
 
   const dropdownData = useMemo(
     () =>
@@ -128,21 +126,15 @@ const ManagerActivityScreen = ({ activityType = 'PROJECT' }) => {
     [activities]
   );
 
-  useFocusEffect(
-    React.useCallback(() => {
-      setFilterValue(''); // Reset filter when entering the screen
-      setActivities([]); // Clear activities to avoid displaying stale data
-      fetchActivityDetails(activityType);
-    }, [activityType])
-  );
+  
 
-  const fetchActivityDetails = async (type) => {
+  const fetchActivityDetails = React.useCallback(async (type) => {
     try {
       setLoading(true);
       const response = await getManagerActivityList({ call_mode: type });
       const fetchedActivities = response?.data?.activity_list || [];
       const currentDate = new Date();
-
+  
       const updatedActivities = fetchedActivities.map((activity) => {
         const dueDate = new Date(activity.due_date);
         return {
@@ -155,45 +147,43 @@ const ManagerActivityScreen = ({ activityType = 'PROJECT' }) => {
               : activity.status,
         };
       });
-
+  
       setActivities(updatedActivities);
     } catch (error) {
       console.error('Error fetching activities:', error.message);
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
+
+  useFocusEffect(
+    React.useCallback(() => {
+      fetchActivityDetails(activityType);
+      return () => setActivities([]); // Clear activities when the screen loses focus
+    }, [activityType, fetchActivityDetails])
+  );
 
   const filteredActivities = useMemo(
     () => (filterValue ? activities.filter((act) => act.order_ref_num === filterValue) : activities),
     [filterValue, activities]
   );
 
-  const handleViewDetails = (activity) => {
-    setSelectedActivity(activity);
-    setModalVisible(true);
-  };
+  const paginatedActivities = useMemo(
+    () => {
+      const start = 0;
+      const end = currentPage * ITEMS_PER_PAGE;
+      return filteredActivities.slice(start, end);
+    },
+    [filteredActivities, currentPage]
+  );
 
   const handleBackPress = () => {
+    setActivities([]); // Clear the activity list
+    setFilterValue('');
     navigation.goBack();
   };
 
-  const getBadgeColor = (status) => {
-    switch (status) {
-      case 'COMPLETED':
-        return '#28a745';
-      case 'OVER-DUE':
-        return '#FF5733';
-      case 'IN PROGRESS':
-        return '#ffc107';
-      default:
-        return '#6c757d';
-    }
-  };
-
-  const getBadgeTextColor = (status) => {
-    return status === 'COMPLETED' || status === 'OVER-DUE' ? '#fff' : '#454545';
-  };
+  const loadMoreActivities = () => setCurrentPage((prev) => prev + 1);
 
   const renderActivity = ({ item }) => (
     <Card>
@@ -217,7 +207,7 @@ const ManagerActivityScreen = ({ activityType = 'PROJECT' }) => {
       <HeaderComponent headerTitle="Manager Activities" onBackPress={handleBackPress} />
       <FilterContainer>
         <DropdownPicker
-          label="Filter by Project Num"
+          label="Filter by Order Num"
           data={dropdownData}
           value={filterValue}
           setValue={setFilterValue}
@@ -230,13 +220,22 @@ const ManagerActivityScreen = ({ activityType = 'PROJECT' }) => {
       </FilterContainer>
       {loading ? (
         <Loader visible={loading} />
+      ) : filteredActivities.length === 0 ? (
+        <EmptyMessage data="activity" />
       ) : (
-        <FlatList
-          data={filteredActivities}
-          keyExtractor={(item) => item.order_ref_num || item.project_code}
-          renderItem={renderActivity}
-          contentContainerStyle={{ padding: 10 }}
-        />
+        <>
+          <FlatList
+            data={paginatedActivities}
+            keyExtractor={(item, index) => `${item.order_ref_num || item.project_code}_${index}`}
+            renderItem={renderActivity}
+            contentContainerStyle={{ padding: 10 }}
+          />
+          {filteredActivities.length > paginatedActivities.length && (
+            <LoadMoreButton onPress={loadMoreActivities}>
+              <LoadMoreButtonText>Load More</LoadMoreButtonText>
+            </LoadMoreButton>
+          )}
+        </>
       )}
       {isModalVisible && selectedActivity && (
         <ModalComponent

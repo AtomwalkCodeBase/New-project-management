@@ -106,7 +106,7 @@ export function getEmpLeave(leave_type , emp_id, year) {
     let data = {
       'call_mode': res.call_mode 
     };
-    console.log('callt ype==',res.call_mode)
+    // console.log('callt ype==',res.call_mode)
     return authAxios(getActivities,data)
   }
 
@@ -120,7 +120,7 @@ export function getEmpLeave(leave_type , emp_id, year) {
 
     };
     
-    console.log('Data==',data)
+    // console.log('Data==',data)
     return authAxios(getActivityQc, data)
   }
 
@@ -130,7 +130,7 @@ export function getEmpLeave(leave_type , emp_id, year) {
     if (activity_invt_process) {
       data['activity_data'] = activity_invt_process;
     }
-    console.log('Data to be sent:', data);
+    // console.log('Data to be sent:', data);s
     return authAxiosPost(processActivity, data)
   
   }

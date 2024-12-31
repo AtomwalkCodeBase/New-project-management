@@ -34,7 +34,7 @@ const Activity = () => {
       });
   }, []);
 
-  console.log('call type:', callType);
+  // console.log('call type:', callType);
 
   if (loading) {
     return (

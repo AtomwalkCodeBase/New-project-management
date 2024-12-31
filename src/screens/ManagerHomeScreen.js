@@ -152,7 +152,7 @@ const fetchActivityDetails = () => {
       };
     getManagerActivityList(data)
         .then((res) => {
-            console.log('response',res?.data)
+            // console.log('response',res?.data)
             setActivities(res?.data?.activity_list);
             setOverdue(res?.data?.over_due_count);
             setToday(res?.data?.due_today);
