@@ -6,8 +6,8 @@ import InventoryUpdate from '../../src/screens/InventoryUpdate'
 const Index = () => {
     const { ref_num, ref_type } = useLocalSearchParams(); // Retrieve the parameter
   
-    console.log('Ref Num===',{ref_num})
-    console.log("Ref type===",{ref_type})
+    // console.log('Ref Num===',{ref_num})
+    // console.log("Ref type===",{ref_type})
 
     return (
     <View style={{ flex: 1}}>

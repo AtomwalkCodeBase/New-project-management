@@ -389,11 +389,9 @@ const ActivityScreen = (props) => {
                     isVisible={isModalVisible}
                     onClose={() => setModalVisible(false)}
                     activityDetails={{
-                        order: selectedActivity.ref_num,
-                        plannedStart: 'Planned Start Date Placeholder',
-                        actualStart: 'Actual Start Date Placeholder',
-                        plannedDuration: 'Planned Duration Placeholder',
-                        actualDuration: 'Actual Duration Placeholder',
+                        order: selectedActivity.sale_order_no,
+                        activity: selectedActivity.activity_name,
+                        project_num: selectedActivity.ref_num,
                     }}
                 />
             )}

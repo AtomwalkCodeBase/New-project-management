@@ -19,23 +19,40 @@ const ModalComponent = ({ isVisible, onClose, activityDetails }) => {
                   <BoldText>Activity Name:</BoldText> {activityDetails.activity}
                 </DetailText>
               )}
-              <DetailText>
+              {activityDetails.order && (
+                <DetailText>
                 <BoldText>Order:</BoldText> {activityDetails.order}
               </DetailText>
+              )}
+
+              {activityDetails.project_num && (
+                <DetailText>
+                <BoldText>Project Num.:</BoldText> {activityDetails.project_num}
+              </DetailText>
+              )}
+              
               {activityDetails.user && (
                 <DetailText>
-                  <BoldText>Activity Name:</BoldText> {activityDetails.user}
+                  <BoldText>User Name:</BoldText> {activityDetails.user}
                 </DetailText>
               )}
-              <DetailText>
+              {activityDetails.plannedStart && (
+                <DetailText>
                 <BoldText>Planned Start Date:</BoldText> {activityDetails.plannedStart}
               </DetailText>
-              <DetailText>
+              )}
+              {activityDetails.actualStart && (
+                <DetailText>
                 <BoldText>Actual Start Date:</BoldText> {activityDetails.actualStart}
               </DetailText>
-              <DetailText>
+              )}
+              
+              {activityDetails.plannedDuration && (
+                <DetailText>
                 <BoldText>Planned Duration:</BoldText> {activityDetails.plannedDuration} Days
-              </DetailText>
+                </DetailText>
+              )}
+              
 
               {activityDetails.actualDuration && (
                 <DetailText>

@@ -224,49 +224,23 @@ return (
         </ProfileTextContainer>
 
         <Row>
-        <InfoCardSmall number={overdue} label="Over Due" gradientColors={cardColors[0]} onPress={() => handleCardClick('GET_OD')} />
-        <InfoCardSmall number={total} label="Planned Today" gradientColors={cardColors[1]} onPress={() => handleCardClick('GET_DT')} />
-        <InfoCardSmall number={dueTotal} label="Due Today" gradientColors={cardColors[2]} onPress={() => handleCardClick('GET_DC')} />
-    </Row>
-
-    <Row>
-        <InfoCardSmall number={dueTomorow} label="Due Tomorrow" gradientColors={cardColors[3]} onPress={() => handleCardClick('GET_D1')} />     
-        <InfoCardSmall number={overDueNS} label="Next 7 Days" gradientColors={cardColors[4]} onPress={() => handleCardClick('GET_D7')} />
-        <InfoCardSmall number={overDueAS} label="After 7 days" gradientColors={cardColors[5]} onPress={() => handleCardClick('GET_ND')} />   
+        <InfoCard number={overdue} label="Over Due" gradientColors={cardColors[0]} onPress={() => handleCardClick('GET_OD')} />
+        <InfoCard number={total} label="Planned Today" gradientColors={cardColors[1]} onPress={() => handleCardClick('GET_DT')} />
+        
     </Row>
     <Row>
-    <InfoCardSmall number={completed} label="Due Completed" gradientColors={cardColors[7]} onPress={() => handleCardClick('GET_OC')} />
-    <InfoCardSmall number={future} label="Future Activity" gradientColors={cardColors[2]} onPress={() => handleCardClick('GET_FC')} />
+        <InfoCard number={dueTotal} label="Due Today" gradientColors={cardColors[2]} onPress={() => handleCardClick('GET_DC')} />
+        <InfoCard number={dueTomorow} label="Due Tomorrow" gradientColors={cardColors[3]} onPress={() => handleCardClick('GET_D1')} />
     </Row>
 
-    {/* Scrollable Activity List */}
-    <ActivityContainer>
-        <Text style={{ fontSize: 18, fontWeight: 'bold', marginBottom: 10, color: '#454545' }}>My Projects</Text>
-        <FlatList
-            data={[...activities].reverse()}
-            keyExtractor={(item) => item.srl_num}
-            showsVerticalScrollIndicator={false}
-            renderItem={({ item }) => (
-                <ActivityRow onPress={() => handleActivityClick(item.order_ref_num)}>
-                <View style={{ flex: 1 }}>
-                  <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
-                    <ActivityText style={{ flex: 1, marginRight: 10 }} numberOfLines={2}>
-                      {item.order_ref_num || item.project_code}
-                    </ActivityText>
-                    <ActivityText style={{ color: '#555555' }}>
-                      {item.start_date}
-                    </ActivityText>
-                  </View>
-                  <ActivityText numberOfLines={2}>
-                    User: {item.user_name}
-                  </ActivityText>
-                </View>
-              </ActivityRow>
-              
-            )}
-            style={{ maxHeight: 200 }}
-        />
-    </ActivityContainer>
+    <Row>   
+        <InfoCard number={overDueNS} label="Next 7 Days" gradientColors={cardColors[4]} onPress={() => handleCardClick('GET_D7')} />
+        <InfoCard number={overDueAS} label="After 7 days" gradientColors={cardColors[5]} onPress={() => handleCardClick('GET_ND')} />   
+    </Row>
+    <Row>
+        <InfoCard number={completed} label="Due Completed" gradientColors={cardColors[7]} onPress={() => handleCardClick('GET_OC')} />
+        <InfoCard number={future} label="Future Activity" gradientColors={cardColors[2]} onPress={() => handleCardClick('GET_FC')} />
+    </Row>
 
     
 

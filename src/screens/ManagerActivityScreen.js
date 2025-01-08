@@ -183,7 +183,16 @@ const ManagerActivityScreen = ({ activityType = 'PROJECT' }) => {
     navigation.goBack();
   };
 
+  const handleViewDetails = (activity) => {
+    setSelectedActivity(activity);
+    setModalVisible(true);
+  };
+
+
+
   const loadMoreActivities = () => setCurrentPage((prev) => prev + 1);
+
+  // console.log('Ahfnd -',activities)
 
   const renderActivity = ({ item }) => (
     <Card>
@@ -245,12 +254,12 @@ const ManagerActivityScreen = ({ activityType = 'PROJECT' }) => {
             setSelectedActivity(null);
           }}
           activityDetails={{
-            activity: selectedActivity?.activity_name || 'N/A',
-            order: selectedActivity?.order_ref_num || 'N/A',
-            user: selectedActivity?.user_name || 'N/A',
-            plannedStart: selectedActivity?.start_date || 'N/A',
-            actualStart: selectedActivity?.actual_start_date || 'N/A',
-            plannedDuration: selectedActivity?.duration || 'N/A',
+            activity: selectedActivity?.activity_name,
+            order: selectedActivity?.order_ref_num,
+            user: selectedActivity?.user_name,
+            plannedStart: selectedActivity?.start_date,
+            actualStart: selectedActivity?.actual_start_date,
+            plannedDuration: selectedActivity?.duration,
           }}
         />
       )}
