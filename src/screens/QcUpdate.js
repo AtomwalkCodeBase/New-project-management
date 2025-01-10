@@ -1,14 +1,16 @@
 import React, { useEffect, useState } from 'react';
-import { View, Dimensions, TextInput, ScrollView } from 'react-native';
+import { View, Dimensions, ScrollView, Alert } from 'react-native';
 import styled from 'styled-components/native';
-import { useRoute, useNavigation } from '@react-navigation/native';
+import { useNavigation } from '@react-navigation/native';
 import HeaderComponent from '../components/HeaderComponent';
 import { LinearGradient } from 'expo-linear-gradient';
 import { getActivitiQcData, postActivtyInventory } from '../services/productServices';
 import SubmitButton from '../components/SubmitButton';
 import { colors } from '../Styles/appStyle';
+import EmptyMessage from '../components/EmptyMessage';
+import SuccessModal from '../components/SuccessModal';
 
-const { width, height } = Dimensions.get('window');
+const { width } = Dimensions.get('window');
 
 // Styled Components
 const GradientBackground = styled(LinearGradient).attrs({
@@ -21,19 +23,15 @@ const GradientBackground = styled(LinearGradient).attrs({
 
 const Container = styled(ScrollView).attrs({
   showsVerticalScrollIndicator: false,
-  showsHorizontalScrollIndicator: false,
 })`
-  flex: 1;
-  padding: 20px;
-  padding-bottom: 40px;
+  padding: 15px;
 `;
 
-const Title = styled.Text`
-  font-size: 22px;
+const SectionTitle = styled.Text`
+  font-size: 18px;
   font-weight: bold;
-  margin-bottom: 20px;
-  text-align: center;
-  color: #333;
+  color: ${colors.primary};
+  margin-bottom: 10px;
 `;
 
 const Card = styled.View`
@@ -60,6 +58,10 @@ const SubText = styled.Text`
   margin-top: 5px;
 `;
 
+const ButtonContainer = styled.View`
+  margin: 0 10px 10px;
+`;
+
 const TextInputStyled = styled.TextInput`
   border: 1px solid #ccc;
   border-radius: 4px;
@@ -69,26 +71,11 @@ const TextInputStyled = styled.TextInput`
   width: 100%;
 `;
 
-const ActionButton = styled.TouchableOpacity`
-  background-color: ${colors.primary};
-  padding: 12px 18px;
-  border-radius: 6px;
-  align-items: center;
-  width: 100%;
-  margin-top: 20px;
-`;
-
-const ButtonText = styled.Text`
-  color: #fff;
-  font-size: 14px;
-  font-weight: bold;
-`;
-
-// Main Component
 const QcUpdate = (props) => {
   const id = props.id;
   const navigation = useNavigation();
   const [qcData, setQcData] = useState([]);
+  const [isSuccessModalVisible, setIsSuccessModalVisible] = useState(false);
 
   useEffect(() => {
     fetchQcData();
@@ -108,33 +95,21 @@ const QcUpdate = (props) => {
     }
   };
 
-  // const handleUpdateQcData = () => {
-  //   console.log('Updating QC data with:', qcData);
-  //   // Add logic to save QC data
-  // };
-  const handleUpdateQcData = async (item) => {
-      
-      
-      const payload = {
-        activity_id: id, 
-        call_mode: 'QC_DATA',
-        qc_data: qcData
-      };
-    
-      // console.log('Updating inventory for item:', payload);
-    
-       try {
-            const res = await postActivtyInventory(payload);
-            // console.log('Success Response:', res.data);
-            Alert.alert('Success', `Inventory for ${item.item_name} updated successfully!`);
-          } catch (res) {
-            console.error('Error updating inventory:',res);
-            Alert.alert(
-              'Error',
-              `Failed to update inventory. Please try again later.'}`
-            );
-          }
+  const handleUpdateQcData = async () => {
+    const payload = {
+      activity_id: id,
+      call_mode: 'QC_DATA',
+      qc_data: qcData,
     };
+
+    try {
+      const res = await postActivtyInventory(payload);
+      setIsSuccessModalVisible(true);
+    } catch (error) {
+      console.error('Error updating QC data:', error);
+      Alert.alert('Error', 'Failed to update QC data. Please try again later.');
+    }
+  };
 
   const handleInputChange = (index, value) => {
     const updatedData = [...qcData];
@@ -142,13 +117,18 @@ const QcUpdate = (props) => {
     setQcData(updatedData);
   };
 
-  // console.log('Fetched Qc Data==',qcData)
-  return (
-    <GradientBackground>
-      <HeaderComponent headerTitle="Quality Check Data" onBackPress={navigation.goBack} />
-      <Container>
-        {qcData.map((item, index) => (
-          <Card key={index}>
+  const renderQcItems = (type, title) => {
+    const filteredData = qcData.filter((item) => item.qc_type === type);
+
+    if (filteredData.length === 0) {
+      return null;
+    }
+
+    return (
+      <>
+        <SectionTitle>{title}</SectionTitle>
+        {filteredData.map((item, index) => (
+          <Card key={`${type}-${index}`}>
             <BoldText>{item.qc_name}</BoldText>
             <SubText>Permissible Value: {item.qc_value}</SubText>
             <TextInputStyled
@@ -156,15 +136,38 @@ const QcUpdate = (props) => {
               value={String(item.qc_actual || '')}
               onChangeText={(value) => handleInputChange(index, value)}
             />
-            <SubmitButton
-              label="Update QC Data"
-              onPress={(value) => handleUpdateQcData(index, value)}
-              bgColor={colors.primary}
-              textColor="white"
-            />
           </Card>
         ))}
+      </>
+    );
+  };
+
+  return (
+    <GradientBackground>
+      <HeaderComponent headerTitle="Quality Check Data" onBackPress={navigation.goBack} />
+      <Container>
+        {qcData.length === 0 ? (
+          <EmptyMessage data="Quality Check" />
+        ) : (
+          <>
+            {renderQcItems('QB', 'QC Before')}
+            {renderQcItems('QA', 'QC After')}
+          </>
+        )}
       </Container>
+      <ButtonContainer>
+      <SubmitButton
+          label="Update QC Data"
+          onPress={handleUpdateQcData}
+          bgColor={colors.primary}
+          textColor="white"
+        />
+      </ButtonContainer>
+      <SuccessModal
+        visible={isSuccessModalVisible}
+        onClose={() => setIsSuccessModalVisible(false)}
+        message="QC data updated successfully!"
+      />
     </GradientBackground>
   );
 };

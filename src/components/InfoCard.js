@@ -2,6 +2,7 @@ import React from 'react';
 import styled from 'styled-components/native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { TouchableOpacity } from 'react-native';
+import Icon from 'react-native-vector-icons/MaterialCommunityIcons'; // Choose your preferred icon set
 
 // InfoCard container with shadow and gradient background
 const InfoCardContainer = styled(LinearGradient).attrs((props) => ({
@@ -9,8 +10,8 @@ const InfoCardContainer = styled(LinearGradient).attrs((props) => ({
   start: { x: 0, y: 0 },
   end: { x: 1, y: 1 },
 }))`
-  width: 120px;
-  height: 120px;
+  width: 130px;
+  height: 130px;
   margin: 8px;
   border-radius: 12px;
   justify-content: center;
@@ -30,17 +31,25 @@ const NumberText = styled.Text`
 `;
 
 const LabelText = styled.Text`
-  font-size: 14px;
+  font-size: 15px;
   color: #ffffff;
   margin-top: 4px;
   font-weight: 600;
   flex-wrap: wrap;
 `;
 
+// Icon Container
+const IconContainer = styled.View`
+  margin-bottom: 8px;
+`;
+
 // InfoCard Component
-const InfoCard = ({ number, label, gradientColors, onPress }) => (
+const InfoCard = ({ number, label, gradientColors, iconName, onPress }) => (
   <TouchableOpacity onPress={onPress} activeOpacity={0.7}>
     <InfoCardContainer colors={gradientColors}>
+      <IconContainer>
+        <Icon name={iconName} size={36} color="#ffffff" />
+      </IconContainer>
       <NumberText>{number}</NumberText>
       <LabelText>{label}</LabelText>
     </InfoCardContainer>

@@ -9,6 +9,7 @@ import { colors } from '../Styles/appStyle';
 import SubmitButton from '../components/SubmitButton';
 import AmountInput from '../components/AmountInput';
 import SuccessModal from '../components/SuccessModal';
+import EmptyMessage from '../components/EmptyMessage';
 
 const { width } = Dimensions.get('window');
 
@@ -73,13 +74,14 @@ const SubText = styled.Text`
   margin-top: 5px;
 `;
 
+// Row for headings
 const HeadingRow = styled.View`
   border-bottom-width: 0.5px;
   border-bottom-color: black;
   padding: 2px;
 `;
 
-
+// Input Row for quantity input
 const InputRow = styled.View`
   flex-direction: row;
   align-items: center;
@@ -92,21 +94,6 @@ const UnitText = styled.Text`
   font-size: 14px;
   color: #555;
   margin-right: 10px;
-`;
-
-// Action Button for triggering inventory update
-const ActionButton = styled.TouchableOpacity`
-  background-color: #4285f4;
-  padding: 8px 15px;
-  border-radius: 6px;
-  margin-top: 10px;
-  align-items: center;
-`;
-
-const ButtonText = styled.Text`
-  color: #fff;
-  font-size: 12px;
-  font-weight: bold;
 `;
 
 const InventoryUpdate = (props) => {
@@ -134,56 +121,18 @@ const InventoryUpdate = (props) => {
 
   // Handle change in input value for each inventory item
   const handleInputChange = (itemNumber, value) => {
-    // Allow only numbers and a single decimal point
     const sanitizedValue = value.replace(/[^0-9.]/g, '').replace(/(\..*?)\..*/g, '$1');
 
     const updatedData = inventoryData.map((item) =>
       item.item_number === itemNumber
-        ? { ...item, curr_consumed_quantity: sanitizedValue } // Update the specific item's quantity
+        ? { ...item, curr_consumed_quantity: sanitizedValue }
         : item
     );
 
     setInventoryData(updatedData);
   };
 
-  // Handle the inventory update for a specific item
-  const handleUpdateInventory = async (item) => {
-    if (call_type === 'INV_IN' && item.curr_consumed_quantity > 0) {
-      const totalConsumed = item.already_consumed_qty + item.curr_consumed_quantity;
-      if (totalConsumed > item.allocated_qty) {
-        Alert.alert(
-          'Error',
-          `Entered consumption exceeds allocated quantity. Allocated: ${item.allocated_qty} ${item.item_base_unit}, Already Consumed: ${item.already_consumed_qty} ${item.item_base_unit}.`
-        );
-        return;
-      }
-    }
-
-    const item_list = [
-      {
-        curr_quantity: `${item.curr_consumed_quantity}`,
-        item_number: item.item_number,
-      },
-    ];
-
-    const payload = {
-      activity_id: id,
-      call_mode: call_type,
-      item_list,
-    };
-
-    try {
-      const res = await postActivtyInventory(payload);
-      setSuccessMessage(`Inventory for ${item.item_name} updated successfully!`);
-      setModalVisible(true); // Show SuccessModal
-      fetchInventoryData();
-    } catch (error) {
-      console.error('Error updating inventory:', error);
-      Alert.alert('Error', 'Failed to update inventory. Please try again later.');
-    }
-  };
-
-
+  // Handle the inventory update for all items
   const handleUpdateAllItems = async () => {
     const flowType = call_type === 'INV_IN' ? 'C' : 'P';
     const itemsToUpdate = inventoryData.filter(item => item.flow_type === flowType && item.curr_consumed_quantity > 0);
@@ -225,7 +174,7 @@ const InventoryUpdate = (props) => {
     try {
       const res = await postActivtyInventory(payload);
       setSuccessMessage('Inventory updated successfully for all items!');
-      setModalVisible(true); // Show SuccessModal
+      setModalVisible(true);
       fetchInventoryData();
     } catch (error) {
       console.error('Error updating inventory:', error);
@@ -233,37 +182,32 @@ const InventoryUpdate = (props) => {
     }
   };
 
+  const filteredData = inventoryData.filter((item) =>
+    call_type === 'INV_IN' ? item.flow_type === 'C' : item.flow_type === 'P'
+  );
+
   return (
     <GradientBackground>
       <HeaderComponent headerTitle={call_type === 'INV_IN' ? 'Consumption Items' : 'Production Items'} onBackPress={navigation.goBack} />
       <Container>
-        {inventoryData
-          .filter((item) =>
-            call_type === 'INV_IN' ? item.flow_type === 'C' : item.flow_type === 'P'
-          )
-          .map((item, index) => (
+        {filteredData.length === 0 ? (
+          <EmptyMessage data={call_type === 'INV_IN' ? 'Consumption Items' : 'Production Items'} />
+        ) : (
+          filteredData.map((item, index) => (
             <Card key={index}>
               <HeadingRow>
-              <Row>
-              <BoldText callType={call_type}>
-                  {item.item_number} [{item.item_name}]
-                </BoldText>
-              </Row>
-              {item.flow_type === 'C' && (
-                <>
-                  <SubText>Batch: {item.bin_location || item.batch_number || 'N/A'}</SubText>
-                  
-                  
-                  
-                </>
-              )}
+                <Row>
+                  <BoldText callType={call_type}>
+                    {item.item_number} [{item.item_name}]
+                  </BoldText>
+                </Row>
+                {item.flow_type === 'C' && (
+                  <>
+                    <SubText>Batch: {item.bin_location || item.batch_number || 'N/A'}</SubText>
+                    <SubText>Allocated Qty: {item.allocated_qty} {item.item_base_unit}</SubText>
+                  </>
+                )}
               </HeadingRow>
-              {item.flow_type === 'C' && (
-                <>
-                  
-                  <SubText>Allocated Qty: {item.allocated_qty} {item.item_base_unit}</SubText>
-                </>
-              )}
               <SubText>
                 {item.flow_type === 'C' 
                   ? `Already Consumed Qty: ${item.already_consumed_qty} ${item.item_base_unit}` 
@@ -282,20 +226,18 @@ const InventoryUpdate = (props) => {
                 />
                 <UnitText>{item.item_base_unit}</UnitText>
               </InputRow>
-              {/* <ActionButton onPress={() => handleUpdateInventory(item)}>
-                <ButtonText>{item.flow_type === 'C' ? "Update Consumption" : "Update Production"}</ButtonText>
-              </ActionButton> */}
             </Card>
-          ))}
+          ))
+        )}
 
-        {call_type === 'INV_IN' || call_type === 'INV_OUT' ? (
+        {filteredData.length > 0 && (call_type === 'INV_IN' || call_type === 'INV_OUT') && (
           <SubmitButton
             label={call_type === 'INV_IN' ? 'Update Consumption' : 'Update Production'}
             onPress={handleUpdateAllItems}
             bgColor={colors.primary}
             textColor="white"
           />
-        ) : null}
+        )}
       </Container>
 
       <SuccessModal

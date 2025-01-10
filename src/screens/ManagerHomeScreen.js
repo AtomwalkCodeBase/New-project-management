@@ -110,7 +110,7 @@ color: #e63946;
 
 const Row = styled.View`
 flex-direction: row;
-justify-content: center;
+justify-content: space-evenly;
 width: 100%;
 margin-bottom: 5px;
 
@@ -120,7 +120,6 @@ const ManagerHomePage = () => {
 const router = useRouter();
 const { userToken } = useContext(AppContext);
 const [company, setCompany] = useState({});
-const [profile, setProfile] = useState([]);
 const [loading, setLoading] = useState(false);
 const [activities, setActivities] = useState([]);
 const [overdue, setOverdue] = useState(0);
@@ -152,7 +151,7 @@ const fetchActivityDetails = () => {
       };
     getManagerActivityList(data)
         .then((res) => {
-            // console.log('response',res?.data)
+            console.log('response',res?.data)
             setActivities(res?.data?.activity_list);
             setOverdue(res?.data?.over_due_count);
             setToday(res?.data?.due_today);
@@ -163,23 +162,12 @@ const fetchActivityDetails = () => {
             setOverDueNS(res?.data?.due_7_days);
             setOverDueAS(res?.data?.not_due_count);
         })
-        .catch((error) => console.log('Error', error))
+        .catch((error) => console.log('Error on home screen', error))
         .finally(() => setLoading(false));
 };
 
-// Example functions for InfoCard clicks
-const handleProjectClick = () => {
-    router.push({
-    pathname: 'ActivityList' 
-    });
-};
 
-const handleActivityClick = (id) => {
-    router.push({
-        pathname: 'ActivityList',
-        params: { ref_num: id },
-    });
-};
+
 
 const handleCardClick = (callType) => {
     router.push({
@@ -205,49 +193,106 @@ const cardColors = [
 
 return (
     <Container>
-    <StatusBar barStyle="light-content" backgroundColor="rgb(252, 128, 20)" />
-    <Loader visible={loading} />
-    <GradientBackground>
-    <CompanyContainer>
-    <LogoContainer>
-    <Logo source={{ uri: company.image || 'https://home.atomwalk.com/static/media/Atom_walk_logo-removebg-preview.21661b59140f92dd7ced.png' }} />
-    </LogoContainer>
-        <CompanyTextContainer>
-        <CompanyName>{company.name || 'Atomwalk Technologies'}</CompanyName>
-        <SubHeader>Welcome to Atomwalk Office!</SubHeader>
-        </CompanyTextContainer>
-        
-        </CompanyContainer>
-        <ProfileTextContainer>
-        <CompanyName>Manager Activities</CompanyName>
-        
-        </ProfileTextContainer>
+        <StatusBar barStyle="light-content" backgroundColor="rgb(252, 128, 20)" />
+        <Loader visible={loading} />
+        <GradientBackground>
+            <CompanyContainer>
+                <LogoContainer>
+                    <Logo
+                        source={{
+                            uri: company.image || 'https://home.atomwalk.com/static/media/Atom_walk_logo-removebg-preview.21661b59140f92dd7ced.png',
+                        }}
+                    />
+                </LogoContainer>
+                <CompanyTextContainer>
+                    <CompanyName>{company.name || 'Atomwalk Technologies'}</CompanyName>
+                    <SubHeader>Welcome to Atomwalk Office!</SubHeader>
+                </CompanyTextContainer>
+            </CompanyContainer>
+            <ProfileTextContainer>
+                <CompanyName>Manage Activities</CompanyName>
+            </ProfileTextContainer>
 
-        <Row>
-        <InfoCard number={overdue} label="Over Due" gradientColors={cardColors[0]} onPress={() => handleCardClick('GET_OD')} />
-        <InfoCard number={total} label="Planned Today" gradientColors={cardColors[1]} onPress={() => handleCardClick('GET_DT')} />
-        
-    </Row>
-    <Row>
-        <InfoCard number={dueTotal} label="Due Today" gradientColors={cardColors[2]} onPress={() => handleCardClick('GET_DC')} />
-        <InfoCard number={dueTomorow} label="Due Tomorrow" gradientColors={cardColors[3]} onPress={() => handleCardClick('GET_D1')} />
-    </Row>
-
-    <Row>   
-        <InfoCard number={overDueNS} label="Next 7 Days" gradientColors={cardColors[4]} onPress={() => handleCardClick('GET_D7')} />
-        <InfoCard number={overDueAS} label="After 7 days" gradientColors={cardColors[5]} onPress={() => handleCardClick('GET_ND')} />   
-    </Row>
-    <Row>
-        <InfoCard number={completed} label="Due Completed" gradientColors={cardColors[7]} onPress={() => handleCardClick('GET_OC')} />
-        <InfoCard number={future} label="Future Activity" gradientColors={cardColors[2]} onPress={() => handleCardClick('GET_FC')} />
-    </Row>
-
-    
-
-        
-    </GradientBackground>
+            <ScrollView 
+            showsVerticalScrollIndicator={false}
+            showsHorizontalScrollIndicator={false}>
+                {/* Render the rows dynamically based on condition */}
+                <Row>
+                    {overdue > 0 && (
+                        <InfoCard
+                            number={overdue}
+                            label="Over Due"
+                            iconName="alert"
+                            gradientColors={cardColors[0]}
+                            onPress={() => handleCardClick('GET_OD')}
+                        />
+                    )}
+                    {overdue > 0 && (
+                        <InfoCard
+                            number={completed}
+                            label="Due Completed"
+                            iconName="clipboard-check"
+                            gradientColors={cardColors[7]}
+                            onPress={() => handleCardClick('GET_OC')}
+                        />
+                    )}
+                    
+                </Row>
+                <Row>
+                <InfoCard
+                        number={total}
+                        label="Planned Today"
+                        iconName="bell"
+                        gradientColors={cardColors[1]}
+                        onPress={() => handleCardClick('GET_DT')}
+                    />
+                    <InfoCard
+                        number={dueTotal}
+                        label="Due Today"
+                        iconName="check-circle"
+                        gradientColors={cardColors[2]}
+                        onPress={() => handleCardClick('GET_DC')}
+                    />
+                    
+                </Row>
+                <Row>
+                    <InfoCard
+                        number={dueTomorow}
+                        label="Due Tomorrow"
+                        iconName="bell"
+                        gradientColors={cardColors[3]}
+                        onPress={() => handleCardClick('GET_D1')}
+                    />
+                    <InfoCard
+                        number={overDueNS}
+                        label="Next 7 Days"
+                        iconName="bell"
+                        gradientColors={cardColors[4]}
+                        onPress={() => handleCardClick('GET_D7')}
+                    />
+                    
+                </Row>
+                <Row>
+                    <InfoCard
+                    number={overDueAS}
+                    label="After 7 days"
+                    iconName="bell-off"
+                    gradientColors={cardColors[5]}
+                    onPress={() => handleCardClick('GET_ND')}
+                    />
+                    <InfoCard
+                        number={future}
+                        label="Future Activity"
+                        iconName="check-circle"
+                        gradientColors={cardColors[2]}
+                        onPress={() => handleCardClick('GET_FC')}
+                    />
+                </Row>
+            </ScrollView>
+        </GradientBackground>
     </Container>
 );
+
 };
 
 export default ManagerHomePage;

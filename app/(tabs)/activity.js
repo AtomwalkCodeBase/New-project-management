@@ -13,6 +13,7 @@ const Activity = () => {
   const [isManager, setIsManager] = useState(false);
   const [profile, setProfile] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [user, setUser] = useState('');
 
   useFocusEffect(
     React.useCallback(() => {
@@ -25,6 +26,7 @@ const Activity = () => {
       .then((res) => {
         setProfile(res.data);
         setIsManager(res?.data?.user_group?.is_manager || false);
+        setUser(res?.data?.user_name);
       })
       .catch(() => {
         setIsManager(false);
@@ -34,7 +36,7 @@ const Activity = () => {
       });
   }, []);
 
-  // console.log('call type:', callType);
+  console.log('Profile==', user);
 
   if (loading) {
     return (
@@ -47,7 +49,7 @@ const Activity = () => {
   return (
     <View style={{ flex: 1 }}>
       {isManager ? (
-        <ManagerActivityScreen activityType={callType} />
+        <ManagerActivityScreen activityType={callType} user={user} />
       ) : (
         <ActivityScreen data="PENDING" />
       )}

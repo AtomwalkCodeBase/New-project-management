@@ -158,7 +158,7 @@ const ProfileScreen = () => {
     router.push({ pathname: 'ResetPassword' });
   };
 
-  console.log('Profile Data==',profile)
+  // console.log('Profile Data==',profile)
 
   return (
     <>

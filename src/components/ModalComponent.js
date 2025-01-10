@@ -19,11 +19,11 @@ const ModalComponent = ({ isVisible, onClose, activityDetails }) => {
                   <BoldText>Activity Name:</BoldText> {activityDetails.activity}
                 </DetailText>
               )}
-              {activityDetails.order && (
+              {/* {activityDetails.order && (
                 <DetailText>
                 <BoldText>Order:</BoldText> {activityDetails.order}
               </DetailText>
-              )}
+              )} */}
 
               {activityDetails.project_num && (
                 <DetailText>

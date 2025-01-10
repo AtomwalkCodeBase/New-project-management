@@ -45,7 +45,7 @@ const CompanyTextContainer = styled.View`
 const ProfileTextContainer = styled.View`
   display: flex;
   align-items: center;
-  padding: 20px;
+  padding: 10px;
   
 `;
 const LogoContainer = styled.View`
@@ -232,13 +232,13 @@ const HomePage = () => {
 
         {/* Cards Layout */}
         <Row>
-          <InfoCard number={total} label="TOTAL" gradientColors={['#007bff', '#00c6ff']} onPress={handleProjectClick} />
-          <InfoCard number={completed} label="DONE" gradientColors={['#38ef7d', '#11998e']} onPress={handleCompletedClick} />
+          <InfoCard number={total} label="TOTAL" iconName="bell" gradientColors={['#007bff', '#00c6ff']} onPress={handleProjectClick} />
+          <InfoCard number={completed} label="DONE" iconName="check-circle" gradientColors={['#38ef7d', '#11998e']} onPress={handleCompletedClick} />
         </Row>
 
         <Row>
-          <InfoCard number={pending} label="PENDING" gradientColors={['#f09819', '#ff512f']} onPress={handlePendingClick} />
-          <InfoCard number={overdue} label="OVER DUE" gradientColors={['#e52d27', '#b31217']} onPress={handleOverdueClick} />
+          <InfoCard number={pending} label="PENDING" iconName="format-list-checks" gradientColors={['#f09819', '#ff512f']} onPress={handlePendingClick} />
+          <InfoCard number={overdue} label="OVER DUE" iconName="alert" gradientColors={['#e52d27', '#b31217']} onPress={handleOverdueClick} />
         </Row>
 
         {/* Scrollable Activity List */}

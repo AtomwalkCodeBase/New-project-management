@@ -156,7 +156,7 @@ const ActivityScreen = (props) => {
     
             // Helper function to parse 'DD-MMM-YYYY' into a Date object
             const parseDate = (dateStr) => {
-                if (!dateStr) return null; // Return null if dateStr is undefined or null
+                if (!dateStr) return null;
                 const [day, month, year] = dateStr.split('-');
                 const months = {
                     Jan: 0, Feb: 1, Mar: 2, Apr: 3, May: 4, Jun: 5,
@@ -167,25 +167,35 @@ const ActivityScreen = (props) => {
     
             const currentDate = new Date(); // Current date as a Date object
     
-            // Update the activities based on due_date, status, and conditions
+            // Map activity_status codes to status labels
+            const mapActivityStatus = {
+                '01': 'PLANNED',
+                '02': 'IN PROGRESS',
+                '03': 'COMPLETED',
+                '04': 'ON HOLD',
+                '09': 'NOT ALLOCATED',
+                '99': 'NOT REQUIRED',
+            };
+    
+            // Update the activities based on due_date, activity_status, and conditions
             fetchedActivities = fetchedActivities.map((activity) => {
                 const dueDate = parseDate(activity.due_date); // Parse due_date to Date object
     
-                if (dueDate && dueDate < currentDate && activity.status === 'IN PROGRESS') {
-                    // If due_date is valid and overdue, update status to OVER-DUE
-                    return {
-                        ...activity,
-                        status: 'OVER-DUE',
-                    };
+                let status = mapActivityStatus[activity.activity_status] || 'UNKNOWN'; // Default to 'UNKNOWN'
+    
+                // Check if overdue
+                if ((activity.activity_status === '01' || activity.activity_status === '02') && activity.is_over_due) {
+                    status = 'OVER-DUE';
+                } else if (dueDate && dueDate < currentDate && status === 'IN PROGRESS') {
+                    status = 'OVER-DUE';
                 } else if (activity.no_hold === 0 && activity.no_pending === 0) {
-                    // If no holds or pending items, update status to COMPLETED
-                    return {
-                        ...activity,
-                        status: 'COMPLETED',
-                    };
+                    status = 'COMPLETED';
                 }
     
-                return activity; // Return activity as-is if no condition matches
+                return {
+                    ...activity,
+                    status,
+                };
             });
     
             // Filter activities based on activityType
@@ -208,6 +218,8 @@ const ActivityScreen = (props) => {
             console.error('Error fetching activities:', error);
         }
     };
+    
+    
     
     
 
@@ -284,14 +296,14 @@ const ActivityScreen = (props) => {
             case 'IN PROGRESS':
                 return '#454545'; // Yellow for in progress
             default:
-                return '#454545'; // Gray for unknown or default status
+                return '#fff'; // Gray for unknown or default status
         }
     };
     
 
     const dropdownData = getUniqueRefNums();
 
-    // console.log('Activity List---',activities)
+    console.log('Activity List---',activities)
 
     const renderItem = ({ item: activity }) => (
         <Card>

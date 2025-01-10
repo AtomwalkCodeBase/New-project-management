@@ -16,7 +16,7 @@ const _layout = () => {
         <Tabs.Screen name='activity'options={{
      title:'Activity',
      headerShown:false,
-     tabBarIcon:({color})=><Ionicons name="hammer-sharp" size={24} color={color}/>
+     tabBarIcon:({color})=><FontAwesome name="industry" size={24} color={color}/>
     }}></Tabs.Screen> 
         <Tabs.Screen name='profile'options={{
      title:'Profile',

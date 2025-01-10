@@ -106,7 +106,7 @@ export function getEmpLeave(leave_type , emp_id, year) {
     let data = {
       'call_mode': res.call_mode 
     };
-    // console.log('callt ype==',res.call_mode)
+    console.log('callt type==',res.call_mode)
     return authAxios(getActivities,data)
   }
 
