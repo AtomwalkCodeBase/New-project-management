@@ -7,6 +7,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { getActivitiQcData, postActivtyInventory } from '../services/productServices';
 import SubmitButton from '../components/SubmitButton';
 import { colors } from '../Styles/appStyle';
+import ErrorModal from '../components/ErrorModal';
 
 const { width, height } = Dimensions.get('window');
 
@@ -109,6 +110,9 @@ const MarkCompleteScreen = (props) => {
   const navigation = useNavigation();
   const [qcData, setQcData] = useState([]);
   const [isCompleted, setIsCompleted] = useState(false);
+  const [errorModalVisible, setErrorModalVisible] = useState(false);
+  const [errorMessage, setErrorMessage] = useState('');
+
 
   useEffect(() => {
     fetchQcData();
@@ -133,78 +137,64 @@ const MarkCompleteScreen = (props) => {
     }
   };
 
-  const handleMarkAsCompleted = async (item) => {
+  const handleMarkAsCompleted = async () => {
+    // Check if any qc_actual value is empty
+    const incompleteQcData = qcData.filter(item => !item.qc_actual);
+  
+    if (incompleteQcData.length > 0) {
+      setErrorMessage('Please update all the required QC data before marking the activity as complete.');
+      setErrorModalVisible(true);
+      return;
+    }
+  
     const payload = {
       activity_id: id,
       call_mode: 'MARK_COMPLETE',
     };
-
+  
     try {
       const res = await postActivtyInventory(payload);
-      Alert.alert('Success', `Activity Completed Successfully`);
+      Alert.alert('Success', 'Activity Completed Successfully');
       handleBackPress();
     } catch (error) {
-      Alert.alert(
-        'Error',
-        `Failed to update Activity. ${error.response?.data?.message || 'Please try again later.'}`
-      );
+      setErrorMessage(error.response?.data?.message || 'Failed to update Activity. Please try again later.');
+      setErrorModalVisible(true);
     }
   };
+  
 
-  // const handleMarkAsCompleted = async () => {
-  //   const payload = {
-  //     activity_id: id,
-  //     isCompleted: !isCompleted,
-  //   };
+  console.log('Qc data--',qcData)
 
-  //   try {
-  //     // const res = await postActivtyInventory(payload);
-  //     setIsCompleted(!isCompleted);
-  //     Alert.alert('Success', `Activity marked as ${!isCompleted ? 'completed' : 'incomplete'}`);
-  //   } catch (error) {
-  //     Alert.alert(
-  //       'Error',
-  //       `Failed to update activity status. ${error.response?.data?.message || 'Please try again later.'}`
-  //     );
-  //   }
-  // };
-
-  const handleInputChange = (index, value) => {
-    const updatedData = [...qcData];
-    updatedData[index].qc_actual = value;
-    setQcData(updatedData);
-  };
 
   return (
-    
-      <GradientBackground>
-        <HeaderComponent headerTitle="Mark Activity Complete" onBackPress={navigation.goBack} />
-        <ButtonContainer>
-          <Container>
-            {qcData.map((item, index) => (
-              <Card key={index}>
-                <BoldText>{item.qc_name}</BoldText>
-                <SubText>Permissible Value: {item.qc_value}</SubText>
-                {/* <TextInputStyled
-                  placeholder="Enter actual value"
-                  value={String(item.qc_actual || '')}
-                  onChangeText={(value) => handleInputChange(index, value)}
-                /> */}
-                {/* <SubmitButton
-                  label="Update QC Data"
-                  onPress={() => handleUpdateQcData(item)}
-                  bgColor={colors.primary}
-                  textColor="white"
-                /> */}
-              </Card>
-            ))}
-          </Container>
-          <ActionButton onPress={handleMarkAsCompleted}>
-            <ButtonText>{isCompleted ? 'Unmark as Completed' : 'Mark as Completed'}</ButtonText>
-          </ActionButton>
-        </ButtonContainer>
-      </GradientBackground>
-    );
+    <GradientBackground>
+      <HeaderComponent headerTitle="Mark Activity Complete" onBackPress={navigation.goBack} />
+      <ButtonContainer>
+        <Container>
+          {qcData.map((item, index) => (
+            <Card key={index}>
+              <BoldText>{item.qc_name}</BoldText>
+              <SubText>Permissible Value: {item.qc_value}</SubText>
+              {item.qc_actual ? (
+                <SubText>QC Actual: {item.qc_actual}</SubText>
+              ) : (
+                <SubText style={{ color: 'red' }}>QC Actual: Not Provided</SubText>
+              )}
+            </Card>
+          ))}
+        </Container>
+        <ActionButton onPress={handleMarkAsCompleted}>
+          <ButtonText>{isCompleted ? 'Unmark as Completed' : 'Mark as Completed'}</ButtonText>
+        </ActionButton>
+      </ButtonContainer>
+      <ErrorModal
+        visible={errorModalVisible}
+        message={errorMessage}
+        onClose={() => setErrorModalVisible(false)}
+      />
+    </GradientBackground>
+  );
+  
     
 };
 

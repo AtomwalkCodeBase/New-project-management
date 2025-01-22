@@ -126,17 +126,19 @@ const InventoryUpdate = (props) => {
 
   // Handle change in input value for each inventory item
   const handleInputChange = (itemNumber, value) => {
-  // Allow only numbers and one decimal point
-  const sanitizedValue = value.match(/^\d*\.?\d*$/)?.[0] || ''; 
+    // Allow only numbers and one decimal point
+    const sanitizedValue = value.match(/^\d*\.?\d*$/)?.[0] || ''; 
+  
+    const updatedData = inventoryData.map((item) =>
+      item.item_number === itemNumber
+        ? { ...item, curr_consumed_quantity: sanitizedValue }
+        : item
+    );
+  
+    setInventoryData(updatedData);
+  };
 
-  const updatedData = inventoryData.map((item) =>
-    item.item_number === itemNumber
-      ? { ...item, curr_consumed_quantity: sanitizedValue }
-      : item
-  );
-
-  setInventoryData(updatedData);
-};
+  
 
 
   // Handle the inventory update for all items

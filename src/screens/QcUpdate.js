@@ -113,34 +113,40 @@ const QcUpdate = (props) => {
 
   const handleInputChange = (index, value) => {
     const updatedData = [...qcData];
-    updatedData[index].qc_actual = value;
+    updatedData[index].qc_actual = value; // Update value or set empty string
     setQcData(updatedData);
   };
+  
+  
 
   const renderQcItems = (type, title) => {
     const filteredData = qcData.filter((item) => item.qc_type === type);
-
+  
     if (filteredData.length === 0) {
       return null;
     }
-
+  
     return (
       <>
         <SectionTitle>{title}</SectionTitle>
-        {filteredData.map((item, index) => (
-          <Card key={`${type}-${index}`}>
-            <BoldText>{item.qc_name}</BoldText>
-            <SubText>Permissible Value: {item.qc_value}</SubText>
-            <TextInputStyled
-              placeholder="Enter actual value"
-              value={String(item.qc_actual || '')}
-              onChangeText={(value) => handleInputChange(index, value)}
-            />
-          </Card>
-        ))}
+        {filteredData.map((item, index) => {
+          const overallIndex = qcData.findIndex((qc) => qc === item); // Find the actual index in qcData
+          return (
+            <Card key={`${type}-${index}`}>
+              <BoldText>{item.qc_name}</BoldText>
+              <SubText>Permissible Value: {item.qc_value}</SubText>
+              <TextInputStyled
+                placeholder="Enter actual value"
+                value={item.qc_actual?.toString() || ''} // Display actual value or empty string
+                onChangeText={(value) => handleInputChange(overallIndex, value)} // Pass actual index
+              />
+            </Card>
+          );
+        })}
       </>
     );
   };
+
 
   return (
     <GradientBackground>
