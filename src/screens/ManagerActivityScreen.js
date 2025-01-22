@@ -54,7 +54,7 @@ const SubText = styled.Text`
 `;
 
 const ButtonRow = styled.View`
-   flex-direction: row;
+    flex-direction: row;
     flex-wrap: wrap;
     justify-content: space-evenly;
     margin-top: 10px;
@@ -71,7 +71,7 @@ const ActionButton = styled.TouchableOpacity`
 
 const ButtonText = styled.Text`
   color: #fff;
-  font-size: 15px;
+  font-size: 13px;
   font-weight: bold;
   text-align: center;
 `;
@@ -129,7 +129,7 @@ const StatusText = styled.Text`
     color: ${(props) => props.textColor || '#454545'};
 `;
 
-const ManagerActivityScreen = ({ activityType = 'PROJECT' , user }) => {
+const ManagerActivityScreen = ({ activityType = 'PROJECT' , user,setCallType }) => {
   const navigation = useNavigation();
   const router = useRouter();
   const [isModalVisible, setModalVisible] = useState(false);
@@ -161,8 +161,8 @@ const ManagerActivityScreen = ({ activityType = 'PROJECT' , user }) => {
       value: refNum,
     }));
   }, [activities]);
-  
 
+  // console.log('Act user',user)
 
 
   const getHeaderTitle = (type) => {
@@ -189,14 +189,14 @@ const ManagerActivityScreen = ({ activityType = 'PROJECT' , user }) => {
   };
   
 
-  const fetchActivityDetails = React.useCallback(async (type) => {
+  const fetchActivityDetails = async (type) => {
+    // alert(type);
     try {
       setLoading(true);
       const response = await getManagerActivityList({ call_mode: type });
   
       const fetchedActivities = response?.data?.activity_list || [];
   
-      console.log('Act--',fetchedActivities)
       const updatedActivities = fetchedActivities.map((activity) => {
         // Check if activity_status exists and assign the corresponding status
         if (activity.activity_status) {
@@ -245,24 +245,34 @@ const ManagerActivityScreen = ({ activityType = 'PROJECT' , user }) => {
     } finally {
       setLoading(false);
     }
-  }, []);
+  };
   
   
   
 
-  
+  useEffect(() => {
+    fetchActivityDetails(activityType);
+    // Cleanup function to clear activities when screen loses focus
+    return () => {
+      setActivities([]); // Clear activities
+      setFilterValue(''); // Reset filter value
+      setCurrentPage(1);  // Reset pagination
+    };
+  },[activityType]
+  )
 
-  useFocusEffect(
-    React.useCallback(() => {
-      fetchActivityDetails(activityType);
+  // useFocusEffect(
+  //   React.useCallback(() => {
+  //     fetchActivityDetails(activityType);
   
-      return () => {
-        setActivities([]); // Clear activities
-        setFilterValue(''); // Reset filter value
-        setCurrentPage(1);  // Reset pagination
-      };
-    }, [activityType, fetchActivityDetails])
-  );
+  //     // Cleanup function to clear activities when screen loses focus
+  //     return () => {
+  //       setActivities([]); // Clear activities
+  //       setFilterValue(''); // Reset filter value
+  //       setCurrentPage(1);  // Reset pagination
+  //     };
+  //   }, [activityType])
+  // );
   
 
   const filteredActivities = useMemo(
@@ -280,6 +290,7 @@ const ManagerActivityScreen = ({ activityType = 'PROJECT' , user }) => {
   );
 
   const handleBackPress = () => {
+    setCallType('PROJECT');
     setActivities([]); // Clear the activity list
     setFilterValue('');
     navigation.goBack();
@@ -401,16 +412,16 @@ const ManagerActivityScreen = ({ activityType = 'PROJECT' , user }) => {
               <ButtonText>View Details</ButtonText>
             </ActionButton>
           )
-        ) : (
-          <ActionButton
-            fullWidth
-            bgColor="#007bff"
-            onPress={() => handleViewDetails(item)}
-          >
-            <ButtonText>View Details</ButtonText>
-          </ActionButton>
-        )}
-      </ButtonRow>
+          ) : (
+            <ActionButton
+              fullWidth
+              bgColor="#007bff"
+              onPress={() => handleViewDetails(item)}
+            >
+              <ButtonText>View Details</ButtonText>
+            </ActionButton>
+          )}
+        </ButtonRow>
       </Card>
     );
   };
@@ -439,7 +450,7 @@ const ManagerActivityScreen = ({ activityType = 'PROJECT' , user }) => {
       ) : (
         <>
           <FlatList
-            data={paginatedActivities}
+            data={[...paginatedActivities].reverse()}
             keyExtractor={(item, index) => `${item.order_ref_num || item.project_code}_${index}`}
             renderItem={renderActivity}
             contentContainerStyle={{ padding: 10 }}

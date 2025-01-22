@@ -11,6 +11,8 @@ const Activity = () => {
   const [callType, setCallType] = useState(params.call_type || 'PROJECT'); // Default to 'PROJECT'
 
   const [isManager, setIsManager] = useState(false);
+  const [isAdmin, setIsAdmin] = useState(false);
+  const [isOwner, setIsOwner] = useState(false);
   const [profile, setProfile] = useState([]);
   const [loading, setLoading] = useState(true);
   const [user, setUser] = useState('');
@@ -26,6 +28,8 @@ const Activity = () => {
       .then((res) => {
         setProfile(res.data);
         setIsManager(res?.data?.user_group?.is_manager || false);
+        setIsAdmin(res?.data?.user_group?.is_admin || false);
+        setIsOwner(res?.data?.user_group?.is_owner || false);
         setUser(res?.data?.user_name);
       })
       .catch(() => {
@@ -36,12 +40,12 @@ const Activity = () => {
       });
   }, []);
 
-  console.log('Profile==', user);
+  // console.log('Profile==', user);
 
   return (
     <View style={{ flex: 1 }}>
-      {isManager ? (
-        <ManagerActivityScreen activityType={callType} user={user} />
+      {(isManager || isAdmin || isOwner) ? (
+        <ManagerActivityScreen activityType={callType} setCallType={setCallType} user={user} />
       ) : (
         <ActivityScreen data="PENDING" />
       )}

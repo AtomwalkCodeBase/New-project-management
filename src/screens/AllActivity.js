@@ -7,6 +7,7 @@ import HeaderComponent from '../components/HeaderComponent';
 import ModalComponent from '../components/ModalComponent';
 import DropdownPicker from '../components/DropdownPicker';
 import { getActivityList } from '../services/productServices';
+import Loader from '../components/old_components/Loader';
 
 const { width } = Dimensions.get('window');
 
@@ -125,6 +126,7 @@ const ClearFilterText = styled.Text`
 const ActivityScreen = (props) => {
     const navigation = useNavigation();
     const router = useRouter();
+    const [isLoading, setIsLoading] = useState(true); // Loader state
     const [isModalVisible, setModalVisible] = useState(false);
     const [selectedActivity, setSelectedActivity] = useState(null);
     const [activities, setActivities] = useState([]);
@@ -150,6 +152,7 @@ const ActivityScreen = (props) => {
     }, [filterValue, activities]);
 
     const fetchActivityDetails = async () => {
+        setIsLoading(true);
         try {
             const res = await getActivityList();
             let fetchedActivities = res?.data?.a_list || [];
@@ -216,7 +219,10 @@ const ActivityScreen = (props) => {
             setActivities(fetchedActivities);
         } catch (error) {
             console.error('Error fetching activities:', error);
+        } finally {
+            setIsLoading(false); // Hide loader after fetching
         }
+        
     };
     
     
@@ -382,6 +388,8 @@ const ActivityScreen = (props) => {
                     </ClearFilterContainer>
                 )}
             </FilterContainer>
+
+            <Loader visible={isLoading} />
 
             <FlatList
                 data={filteredActivities}

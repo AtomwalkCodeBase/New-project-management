@@ -10,6 +10,7 @@ import SubmitButton from '../components/SubmitButton';
 import AmountInput from '../components/AmountInput';
 import SuccessModal from '../components/SuccessModal';
 import EmptyMessage from '../components/EmptyMessage';
+import Loader from '../components/old_components/Loader';
 
 const { width } = Dimensions.get('window');
 
@@ -103,6 +104,7 @@ const InventoryUpdate = (props) => {
   const [inventoryData, setInventoryData] = useState([]);
   const [modalVisible, setModalVisible] = useState(false);
   const [successMessage, setSuccessMessage] = useState('');
+  const [loading, setLoading] = useState(false); // Loader state
 
   useEffect(() => {
     fetchInventoryData();
@@ -110,30 +112,36 @@ const InventoryUpdate = (props) => {
 
   // Fetch inventory data from the API
   const fetchInventoryData = async () => {
+    setLoading(true);
     try {
       const data = { activity_id: id, call_mode: 'INV_IN' };
       const response = await getActivitiQcData(data);
       setInventoryData(response.data);
     } catch (error) {
       console.error('Error fetching inventory data:', error);
+    } finally {
+      setLoading(false); // Stop loader
     }
   };
 
   // Handle change in input value for each inventory item
   const handleInputChange = (itemNumber, value) => {
-    const sanitizedValue = value.replace(/[^0-9.]/g, '').replace(/(\..*?)\..*/g, '$1');
+  // Allow only numbers and one decimal point
+  const sanitizedValue = value.match(/^\d*\.?\d*$/)?.[0] || ''; 
 
-    const updatedData = inventoryData.map((item) =>
-      item.item_number === itemNumber
-        ? { ...item, curr_consumed_quantity: sanitizedValue }
-        : item
-    );
+  const updatedData = inventoryData.map((item) =>
+    item.item_number === itemNumber
+      ? { ...item, curr_consumed_quantity: sanitizedValue }
+      : item
+  );
 
-    setInventoryData(updatedData);
-  };
+  setInventoryData(updatedData);
+};
+
 
   // Handle the inventory update for all items
   const handleUpdateAllItems = async () => {
+    setLoading(true);
     const flowType = call_type === 'INV_IN' ? 'C' : 'P';
     const itemsToUpdate = inventoryData.filter(item => item.flow_type === flowType && item.curr_consumed_quantity > 0);
 
@@ -150,6 +158,7 @@ const InventoryUpdate = (props) => {
             'Error',
             `Entered consumption for ${item.item_name} exceeds allocated quantity. Allocated: ${allocatedQty} ${item.item_base_unit}, Already Consumed: ${alreadyConsumed} ${item.item_base_unit}.`
           );
+          setLoading(false);
           return;
         }
       }
@@ -162,6 +171,7 @@ const InventoryUpdate = (props) => {
 
     if (item_list.length === 0) {
       Alert.alert('No Items to Update', 'Please enter valid quantities for at least one item.');
+      setLoading(false);
       return;
     }
 
@@ -179,6 +189,8 @@ const InventoryUpdate = (props) => {
     } catch (error) {
       console.error('Error updating inventory:', error);
       Alert.alert('Error', 'Failed to update inventory. Please try again later.');
+    } finally {
+      setLoading(false); // Stop loader
     }
   };
 
@@ -186,9 +198,16 @@ const InventoryUpdate = (props) => {
     call_type === 'INV_IN' ? item.flow_type === 'C' : item.flow_type === 'P'
   );
 
+  // if (loading) {
+  //   return (
+      
+  //   );
+  // }
+
   return (
     <GradientBackground>
       <HeaderComponent headerTitle={call_type === 'INV_IN' ? 'Consumption Items' : 'Production Items'} onBackPress={navigation.goBack} />
+      <Loader visible={loading} />
       <Container>
         {filteredData.length === 0 ? (
           <EmptyMessage data={call_type === 'INV_IN' ? 'Consumption Items' : 'Production Items'} />
