@@ -318,11 +318,10 @@ const ActivityScreen = (props) => {
             <SubText>Due Date: {activity.due_date || 'N/A'}</SubText>
 
             <ButtonRow>
-                {activity.status !== 'COMPLETED' && (
+                {activity.status !== 'COMPLETED' && activity.activity_status === '02' ? (
                     <>
                         <ActionButton
                             bgColor="#28a745"
-                            // onPress={() => alert('Mark as Completed')}
                             onPress={() => handleCompleteClick(activity.activity_id)}
                         >
                             <ButtonText>Mark as Completed</ButtonText>
@@ -335,32 +334,28 @@ const ActivityScreen = (props) => {
                         </ActionButton>
                         <ActionButton
                             bgColor="#4285f4"
-                            onPress={() => handleInventoryClick(activity.activity_id,'INV_IN')}
+                            onPress={() => handleInventoryClick(activity.activity_id, 'INV_IN')}
                         >
                             <ButtonText>Inventory Update</ButtonText>
                         </ActionButton>
                         <ActionButton
                             bgColor="#4285f4"
-                            onPress={() => handleInventoryClick(activity.activity_id,'INV_OUT')}
+                            onPress={() => handleInventoryClick(activity.activity_id, 'INV_OUT')}
                         >
                             <ButtonText>Production Update</ButtonText>
                         </ActionButton>
                     </>
-                )}
-                {activity.status == 'COMPLETED' && (
-                    <>
-                <ActionButton
-                    bgColor="#4285f4"
-                    fullWidth={
-                        activity.status === 'COMPLETED'
-                    }
-                    onPress={() => handleViewDetails(activity)}
-                >
-                    <ButtonText>View Details</ButtonText>
-                </ActionButton>
-                </>
+                ): (
+                    <ActionButton
+                        bgColor="#4285f4"
+                        fullWidth={true}
+                        onPress={() => handleViewDetails(activity)}
+                    >
+                        <ButtonText>View Details</ButtonText>
+                    </ActionButton>
                 )}
             </ButtonRow>
+
         </Card>
     );
 

@@ -38,14 +38,6 @@ const Activity = () => {
 
   console.log('Profile==', user);
 
-  if (loading) {
-    return (
-      <SafeAreaView>
-        <Text>Loading...</Text>
-      </SafeAreaView>
-    );
-  }
-
   return (
     <View style={{ flex: 1 }}>
       {isManager ? (

@@ -24,14 +24,6 @@ const Home = () => {
       });
   }, []);
 
-  if (loading) {
-    return (
-      <SafeAreaView>
-        <Text>Loading...</Text>
-      </SafeAreaView>
-    );
-  }
-
   return (
     <SafeAreaView>
       {isManager ? <ManagerHomePage /> : <HomeScreen />}

@@ -149,15 +149,20 @@ const ManagerActivityScreen = ({ activityType = 'PROJECT' , user }) => {
     setLoadingMore(false);
   };
 
-  const dropdownData = useMemo(
-    () =>
+  const dropdownData = useMemo(() => {
+    const uniqueOrderRefs = new Set(
       activities
         .filter(({ order_ref_num }) => order_ref_num)
-        .map(({ order_ref_num }) => ({ label: order_ref_num, value: order_ref_num })),
-    [activities]
-  );
+        .map(({ order_ref_num }) => order_ref_num)
+    );
+  
+    return Array.from(uniqueOrderRefs).map((refNum) => ({
+      label: refNum,
+      value: refNum,
+    }));
+  }, [activities]);
+  
 
-  // console.log('Act user',user)
 
 
   const getHeaderTitle = (type) => {
@@ -191,6 +196,7 @@ const ManagerActivityScreen = ({ activityType = 'PROJECT' , user }) => {
   
       const fetchedActivities = response?.data?.activity_list || [];
   
+      console.log('Act--',fetchedActivities)
       const updatedActivities = fetchedActivities.map((activity) => {
         // Check if activity_status exists and assign the corresponding status
         if (activity.activity_status) {
@@ -250,7 +256,6 @@ const ManagerActivityScreen = ({ activityType = 'PROJECT' , user }) => {
     React.useCallback(() => {
       fetchActivityDetails(activityType);
   
-      // Cleanup function to clear activities when screen loses focus
       return () => {
         setActivities([]); // Clear activities
         setFilterValue(''); // Reset filter value
@@ -356,10 +361,11 @@ const ManagerActivityScreen = ({ activityType = 'PROJECT' , user }) => {
         <SubText>Assigned to: {item.user_name}</SubText>
         <SubText>Activity: {item.activity_name}</SubText>
         <SubText>Planned Start: {item.start_date || 'N/A'}</SubText>
-        <SubText>Actual Start: {item.actual_start_date || 'N/A'}</SubText>
+        <SubText>Actual Start: {item.actual_start_date || 'Activity Not Started'}</SubText>
   
         <ButtonRow>
-          {isCurrentUser ? (
+        {item.actual_start_date ? (
+          isCurrentUser ? (
             <>
               <ActionButton
                 bgColor="#28a745"
@@ -375,13 +381,13 @@ const ManagerActivityScreen = ({ activityType = 'PROJECT' , user }) => {
               </ActionButton>
               <ActionButton
                 bgColor="#4285f4"
-                onPress={() => handleInventoryClick(item.pa_id,'INV_IN')}
+                onPress={() => handleInventoryClick(item.pa_id, 'INV_IN')}
               >
                 <ButtonText>Inventory Update</ButtonText>
               </ActionButton>
               <ActionButton
                 bgColor="#4285f4"
-                onPress={() => handleInventoryClick(item.pa_id,'INV_OUT')}
+                onPress={() => handleInventoryClick(item.pa_id, 'INV_OUT')}
               >
                 <ButtonText>Production Update</ButtonText>
               </ActionButton>
@@ -394,8 +400,17 @@ const ManagerActivityScreen = ({ activityType = 'PROJECT' , user }) => {
             >
               <ButtonText>View Details</ButtonText>
             </ActionButton>
-          )}
-        </ButtonRow>
+          )
+        ) : (
+          <ActionButton
+            fullWidth
+            bgColor="#007bff"
+            onPress={() => handleViewDetails(item)}
+          >
+            <ButtonText>View Details</ButtonText>
+          </ActionButton>
+        )}
+      </ButtonRow>
       </Card>
     );
   };

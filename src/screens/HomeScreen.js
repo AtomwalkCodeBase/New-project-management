@@ -1,5 +1,5 @@
 import React, { useContext, useState, useEffect } from 'react';
-import { View, Text, FlatList, Dimensions, ScrollView, TouchableOpacity } from 'react-native';
+import { View, Text, FlatList, Dimensions, ScrollView, TouchableOpacity, StyleSheet } from 'react-native';
 import styled from 'styled-components/native';
 import InfoCard from '../components/InfoCard';
 import { AppContext } from '../../context/AppContext';
@@ -8,6 +8,8 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { StatusBar } from 'expo-status-bar';
 import { useRouter } from 'expo-router';
 import { getActivityList } from '../services/productServices';
+import { MaterialIcons } from '@expo/vector-icons';
+import Loader from '../components/old_components/Loader';
 
 const { width } = Dimensions.get('window');
 
@@ -130,7 +132,8 @@ const HomePage = () => {
   const [completed, setCompleted] = useState(0);
   const [pending, setPending] = useState(0);
   const [overdue, setOverdue] = useState(0);
-  const [isManager, setIsManager] = useState(false) 
+  const [isManager, setIsManager] = useState(false);
+  const [loaderVisible, setLoaderVisible] = useState(true);
 
   useEffect(() => {
     setLoading(true);
@@ -174,9 +177,11 @@ const HomePage = () => {
         setCompleted(res?.data?.completed_count);
         setPending(res?.data?.pending_count);
         setOverdue(res?.data?.over_due_count);
+        setLoaderVisible(false);
       })
       .catch((error) => {
         console.log('Error',error);
+        setLoaderVisible(false);
       });
   };
   
@@ -214,6 +219,7 @@ const HomePage = () => {
     <Container>
       <StatusBar barStyle="light-content" backgroundColor="rgb(252, 128, 20)" />
       <GradientBackground>
+      <Loader visible={loaderVisible} />
       <CompanyContainer>
       <LogoContainer>
       <Logo source={{ uri: company.image || 'https://home.atomwalk.com/static/media/Atom_walk_logo-removebg-preview.21661b59140f92dd7ced.png' }} />
@@ -224,6 +230,9 @@ const HomePage = () => {
         </CompanyTextContainer>
         
         </CompanyContainer>
+
+        {activities.length > 0 ? (
+          <>
         <ProfileTextContainer>
           <CompanyName>My Activities</CompanyName>
         
@@ -231,6 +240,8 @@ const HomePage = () => {
        
 
         {/* Cards Layout */}
+        
+          
         <Row>
           <InfoCard number={total} label="TOTAL" iconName="bell" gradientColors={['#007bff', '#00c6ff']} onPress={handleProjectClick} />
           <InfoCard number={completed} label="DONE" iconName="check-circle" gradientColors={['#38ef7d', '#11998e']} onPress={handleCompletedClick} />
@@ -240,26 +251,55 @@ const HomePage = () => {
           <InfoCard number={pending} label="PENDING" iconName="format-list-checks" gradientColors={['#f09819', '#ff512f']} onPress={handlePendingClick} />
           <InfoCard number={overdue} label="OVER DUE" iconName="alert" gradientColors={['#e52d27', '#b31217']} onPress={handleOverdueClick} />
         </Row>
+        
+        
 
         {/* Scrollable Activity List */}
-        <ActivityContainer>
-        <Text style={{ fontSize: 18, fontWeight: 'bold', marginBottom: 10, color: '#454545' }}>My Projects</Text>
-          <FlatList
-            data={[...activities].reverse()}
-            keyExtractor={(item) => item.activity_id}
-            showsVerticalScrollIndicator={false}
-            renderItem={({ item }) => (
-              <ActivityRow onPress={() => handleActivityClick(item.ref_num)}>
-                <ActivityText>{item.ref_num}</ActivityText>
-                <StatusText>{item.status}</StatusText>
-              </ActivityRow>
-            )}
-            style={{ maxHeight: 200 }}
-          />
-        </ActivityContainer>
+        {activities.length > 0 && (
+          <ActivityContainer>
+            <Text style={{ fontSize: 18, fontWeight: 'bold', marginBottom: 10, color: '#454545' }}>My Projects</Text>
+            <FlatList
+              data={[...activities].reverse()}
+              keyExtractor={(item) => item.activity_id}
+              showsVerticalScrollIndicator={false}
+              renderItem={({ item }) => (
+                <ActivityRow onPress={() => handleActivityClick(item.ref_num)}>
+                  <ActivityText>{item.ref_num}</ActivityText>
+                  <StatusText>{item.status}</StatusText>
+                </ActivityRow>
+              )}
+              style={{ maxHeight: 200 }}
+            />
+          </ActivityContainer>
+        )}
+
+        </>
+
+      ):<View style={styles.container}>
+      <MaterialIcons name="info-outline" size={48} color="#fb9032" />
+      <Text style={styles.text}>No Activity Allocated</Text>
+    </View>}
+        
+
       </GradientBackground>
     </Container>
   );
 };
 
 export default HomePage;
+
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    // justifyContent: 'center',
+    alignItems: 'center',
+    marginTop: 200,
+  },
+  text: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    marginTop: 10,
+    color: '#fb9032', // Green color
+  },
+});
