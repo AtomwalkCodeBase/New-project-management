@@ -450,7 +450,7 @@ const ManagerActivityScreen = ({ activityType = 'PROJECT' , user,setCallType }) 
       ) : (
         <>
           <FlatList
-            data={[...paginatedActivities].reverse()}
+            data={paginatedActivities}
             keyExtractor={(item, index) => `${item.order_ref_num || item.project_code}_${index}`}
             renderItem={renderActivity}
             contentContainerStyle={{ padding: 10 }}
