@@ -382,25 +382,25 @@ const ManagerActivityScreen = ({ activityType = 'PROJECT' , user,setCallType }) 
                 bgColor="#28a745"
                 onPress={() => handleCompleteClick(item.pa_id)}
               >
-                <ButtonText>Mark as Completed</ButtonText>
+                <ButtonText>Mark Completed</ButtonText>
               </ActionButton>
               <ActionButton
                 bgColor="#f77f00"
                 onPress={() => handleQcClick(item.pa_id)}
               >
-                <ButtonText>QC Data Update</ButtonText>
+                <ButtonText>QC Update</ButtonText>
               </ActionButton>
               <ActionButton
                 bgColor="#4285f4"
                 onPress={() => handleInventoryClick(item.pa_id, 'INV_IN')}
               >
-                <ButtonText>Inventory Update</ButtonText>
+                <ButtonText>Inventory Data</ButtonText>
               </ActionButton>
               <ActionButton
                 bgColor="#4285f4"
                 onPress={() => handleInventoryClick(item.pa_id, 'INV_OUT')}
               >
-                <ButtonText>Production Update</ButtonText>
+                <ButtonText>Production Data</ButtonText>
               </ActionButton>
             </>
           ) : (
