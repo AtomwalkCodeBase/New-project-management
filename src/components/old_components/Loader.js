@@ -8,6 +8,7 @@ import {
   Alert,
 } from 'react-native';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons'; // Import icons
+import { FontAwesome5 } from '@expo/vector-icons';
 import { colors } from '../../Styles/appStyle';
 
 const Loader = ({ visible = false, onTimeout }) => {
@@ -75,7 +76,8 @@ const Loader = ({ visible = false, onTimeout }) => {
     <View style={[styles.container, { height, width }]}>
       <Animated.View style={[styles.loader, { transform: [{ scale: pulseAnim }] }]}>
         <Animated.View style={{ transform: [{ rotate: rotateInterpolate }] }}>
-          <MaterialCommunityIcons name="atom" size={40} color="rgb(254, 171, 98)" />
+          {/* <MaterialCommunityIcons name="atom" size={40} color="rgb(254, 171, 98)" /> */}
+          <FontAwesome5 name="atom" size={40} color="rgb(254, 171, 98)" />
         </Animated.View>
         <Text style={styles.loadingText}>Loading...</Text>
       </Animated.View>
