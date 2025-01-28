@@ -22,7 +22,7 @@ const PickerContainer = styled.View`
 `;
 
 const DropdownPicker = ({ error, label, data, value, setValue }) => {
-  
+  console.log('drop',data)
   return (
     <FieldContainer>
       {/* <Label>{label}</Label> */}

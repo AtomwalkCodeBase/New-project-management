@@ -9,6 +9,7 @@ import DropdownPicker from '../components/DropdownPicker';
 import { getManagerActivityList } from '../services/productServices';
 import Loader from '../components/old_components/Loader';
 import EmptyMessage from '../components/EmptyMessage';
+import QRModal from '../components/QRModal';
 
 const { width } = Dimensions.get('window');
 
@@ -138,7 +139,9 @@ const ManagerActivityScreen = ({ activityType = 'PROJECT' , user,setCallType }) 
   const [filterValue, setFilterValue] = useState('');
   const [loading, setLoading] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
+  const [isGetQRModalVisible, setIsGetQRModalVisible] = useState(false);
   const [loadingMore, setLoadingMore] = useState(false);
+  const [qrValue, setQRValue] = useState('');
 
   const ITEMS_PER_PAGE = 20;
 
@@ -261,19 +264,7 @@ const ManagerActivityScreen = ({ activityType = 'PROJECT' , user,setCallType }) 
   },[activityType]
   )
 
-  // useFocusEffect(
-  //   React.useCallback(() => {
-  //     fetchActivityDetails(activityType);
-  
-  //     // Cleanup function to clear activities when screen loses focus
-  //     return () => {
-  //       setActivities([]); // Clear activities
-  //       setFilterValue(''); // Reset filter value
-  //       setCurrentPage(1);  // Reset pagination
-  //     };
-  //   }, [activityType])
-  // );
-  
+ 
 
   const filteredActivities = useMemo(
     () => (filterValue ? activities.filter((act) => act.order_ref_num === filterValue) : activities),
@@ -351,9 +342,20 @@ const ManagerActivityScreen = ({ activityType = 'PROJECT' , user,setCallType }) 
 };
 
 
+const handleQRPress = (id) => {
+  setQRValue(`Activity ID: ${id}`); // Generate QR value dynamically
+  setIsGetQRModalVisible(true); // Show the QR modal
+};
+
+const handlePressScanQR = () => {
+  router.push({
+    pathname: 'QrScanner' 
+  });
+};
+
   // const loadMoreActivities = () => setCurrentPage((prev) => prev + 1);
 
-  console.log('Manager Activity List -',activities)
+  // console.log('Manager Activity List -',activities)
 
   const renderActivity = ({ item }) => {
     const isCurrentUser = item.user_name === user;
@@ -401,6 +403,18 @@ const ManagerActivityScreen = ({ activityType = 'PROJECT' , user,setCallType }) 
                 onPress={() => handleInventoryClick(item.pa_id, 'INV_OUT')}
               >
                 <ButtonText>Production Data</ButtonText>
+              </ActionButton>
+              <ActionButton
+                  bgColor="#4285f4"
+                  onPress={() => handleQRPress(item.pa_id)} // Updated to handle QR generation
+                >
+                  <ButtonText>Generate QR</ButtonText>
+                </ActionButton>
+              <ActionButton
+                bgColor="#4285f4"
+                onPress={handlePressScanQR}
+              >
+                <ButtonText>Scan QR</ButtonText>
               </ActionButton>
             </>
           ) : (
@@ -483,6 +497,11 @@ const ManagerActivityScreen = ({ activityType = 'PROJECT' , user,setCallType }) 
           }}
         />
       )}
+       <QRModal
+        isVisible={isGetQRModalVisible}
+        onClose={() => setIsGetQRModalVisible(false)}
+        qrValue={qrValue}
+      />
     </GradientBackground>
   );
 };

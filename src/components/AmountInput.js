@@ -22,7 +22,7 @@ const AmountInput = ({ error, label, claimAmount, setClaimAmount }) => {
     <>
       {/* <Label>{label}</Label> */}
       <Input
-        placeholder="Enter consumption quantity"
+        placeholder="Enter Quantity"
         keyboardType="numeric"
         value={claimAmount}
         onChangeText={setClaimAmount}

@@ -3,6 +3,7 @@
     "name": "Atomwalk Project Management",
     "slug": "atomwalk-project-management",
     "version": "1.0.3",
+    "permissions": ["CAMERA"],
     "orientation": "portrait",
     "icon": "./assets/images/adaptive-icons.png",
     "scheme": "myapp",
