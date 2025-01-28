@@ -34,14 +34,17 @@ const AddInventoryItem = () => {
   const navigation = useNavigation();
   const router = useRouter();
   const params = useLocalSearchParams();
-
   useEffect(() => {
-    fetchItemList();
+    if (params?.item) {
+      fetchItemList(params?.item);
+    }
+    else{
+      fetchItemList();
+    }
     if (params?.quantyti) {
       setAmount(params?.quantyti);
-      setItem(params?.item);
     }
-  }, [params?.quantyti]);
+  }, [params?.quantyti, params?.item]); 
 
   useLayoutEffect(() => {
     navigation.setOptions({
@@ -49,20 +52,31 @@ const AddInventoryItem = () => {
     });
   }, [navigation]);
 
-  useEffect(() => {
-    fetchItemList();
-  }, []);
+  // useEffect(() => {
+  //   fetchItemList();
+  // }, []);
 
-  const fetchItemList = async () => {
+  const fetchItemList = async (selectedItemId) => {
     setIsLoading(true);
     try {
       const response = await getInventoryItem();
       const formattedData = response.data.map((item) => ({
-        label: item.name,
-        value: item.id,
+        label: item.name,  
+        value: item.id,    
       }));
+  
 
       setClaimItem(formattedData);
+
+      if (selectedItemId) {
+        const selectedItem = formattedData.find((item) => String(item.value) === String(selectedItemId));
+        if (selectedItem) {
+          setItem(selectedItem.value);
+         
+        } else {
+          console.warn('Selected item ID not found in the list.');
+        }
+      }
     } catch (error) {
       console.error('Error fetching inventory items:', error);
     } finally {

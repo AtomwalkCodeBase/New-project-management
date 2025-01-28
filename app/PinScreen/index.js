@@ -15,14 +15,16 @@ import Icon from 'react-native-vector-icons/Ionicons'; // Import Ionicons for th
 import { useEffect } from 'react';
 import PinPassword from '../../src/screens/PinPassword';
 import { AppContext } from '../../context/AppContext';
+import Loader from '../../src/components/old_components/Loader';
 
 const AuthScreen = () => {
-    const {login} = useContext(AppContext);
+    const {login ,isLoading} = useContext(AppContext);
     const router = useRouter();
     const [mPIN, setMPIN] = useState(['', '', '', '']);
     const [attemptsRemaining, setAttemptsRemaining] = useState(5);
     const [isAuthenticated, setIsAuthenticated] = useState(false);
     const [modalVisible, setModalVisible] = useState(false);
+    // const [isLoading, setIsLoading] = useState(false);
     const openpupop=()=>{
         setModalVisible(true)
     }
@@ -68,6 +70,7 @@ const AuthScreen = () => {
         }
     };
     const handleBiometricAuthentication = async () => {
+
         const finalUsername = await AsyncStorage.getItem('username');
         const userPassword = await AsyncStorage.getItem('Password');
         try {
@@ -82,6 +85,7 @@ const AuthScreen = () => {
         } catch (err) {
             console.error(err);
         }
+
     };
     return (
         <ImageBackground
@@ -128,10 +132,10 @@ const AuthScreen = () => {
                 </View>
             </View>
             <PinPassword setModalVisible={setModalVisible} modalVisible={modalVisible}></PinPassword>
+            <Loader visible={isLoading} />
         </ImageBackground>
     );
 };
-
 const styles = StyleSheet.create({
     background: {
         flex: 1,

@@ -1,101 +1,106 @@
-import React, { useContext, useState, useEffect } from 'react';
-import { View, Text, FlatList, Dimensions, ScrollView, TouchableOpacity, StyleSheet } from 'react-native';
+import React from 'react';
+import { Dimensions, StyleSheet, View, ImageBackground, Text } from 'react-native';
 import styled from 'styled-components/native';
 import InfoCard from '../components/InfoCard';
-import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from 'expo-router';
-import { MaterialIcons } from '@expo/vector-icons';
-import Loader from '../components/old_components/Loader';
 import HeaderComponent from '../components/HeaderComponent';
 import { useNavigation } from '@react-navigation/native';
 
 const { width } = Dimensions.get('window');
 
 const Container = styled.View`
-  /* flex: 1; */
+  flex: 1;
   background-color: #f5f5f5;
 `;
 
-const GradientBackground = styled(LinearGradient).attrs({
-  colors: ['#ffd6b3', '#f7dce0'],
-  start: { x: 0, y: 0 },
-  end: { x: 1, y: 1 },
-})`
-  /* flex: 1; */
-  align-items: center;
-  height: 100%;
+const BackgroundImage = styled.View`
+
+  flex: 1;
+  resize-mode: cover;
 `;
 
+const ButtonRow = styled.View`
+  flex-direction: row;
+  justify-content: space-around;
+  margin: 20px 0;
+  width: 100%;
+`;
 
-
-const Row = styled.View`
-  /* flex-direction: row; */
-  display: flex;
+const GradientOverlay = styled.View`
+  flex: 1;
+  background-color: rgba(255, 255, 255, 0.8); /* Subtle overlay for readability */
   justify-content: center;
   align-items: center;
-  width: 100%;
-  /* margin: 10px; */
-  
 `;
 
 const ManageInventory = () => {
   const router = useRouter();
-//   const [loaderVisible, setLoaderVisible] = useState(true);
   const navigation = useNavigation();
 
-  
-
-  const handleAddClick = () => {
-    router.push({
-      pathname: 'AddInventory' 
-    });
-  };
-  // const handleReviewsClick = () => alert('Reviews Clicked');
-  
-  
-  
   const handleBackPress = () => {
     navigation.goBack();
   };
 
-  // console.log('Activity List======',activities)
+  const handleButtonPress = (route) => {
+    router.push({ pathname: route });
+  };
 
   return (
     <Container>
-    <HeaderComponent headerTitle='Manage Inventory' onBackPress={handleBackPress} />
-      <GradientBackground>
-      {/* <Loader visible={loaderVisible} /> */}
-      
-
-        
-          
-        <Row>
-          <InfoCard number='Add' label="Item" iconName="plus-circle-multiple" gradientColors={['#007bff', '#00c6ff']} onPress={handleAddClick} />
-          <InfoCard number='Process' label="Item" iconName="check-circle" gradientColors={['#38ef7d', '#11998e']} onPress={handleAddClick} />
-        </Row>
-
-        
-        
-
-      </GradientBackground>
+      <HeaderComponent headerTitle="Manage Inventory" onBackPress={handleBackPress} />
+      <BackgroundImage>
+        <GradientOverlay>
+          <View style={styles.titleContainer}>
+            <Text style={styles.title}>Manage Your Inventory</Text>
+          </View>
+          <ButtonRow>
+            <InfoCard
+              number="Add"
+              label="Item"
+              iconName="plus-circle-multiple"
+              gradientColors={['#007bff', '#00c6ff']}
+              onPress={() => handleButtonPress('AddInventory')}
+            />
+            <InfoCard
+              number="Process"
+              label="Item"
+              iconName="check-circle"
+              gradientColors={['#38ef7d', '#11998e']}
+              onPress={() => handleButtonPress('ProcessInventory')}
+            />
+          </ButtonRow>
+          <ButtonRow>
+            <InfoCard
+              number="View"
+              label="Inventory"
+              iconName="eye"
+              gradientColors={['#f7971e', '#ffd200']}
+              onPress={() => handleButtonPress('ViewInventory')}
+            />
+            <InfoCard
+              number="Reports"
+              label="Stats"
+              iconName="chart-line"
+              gradientColors={['#8e44ad', '#c0392b']}
+              onPress={() => handleButtonPress('Reports')}
+            />
+          </ButtonRow>
+        </GradientOverlay>
+      </BackgroundImage>
     </Container>
   );
 };
 
 export default ManageInventory;
 
-
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    // justifyContent: 'center',
+  titleContainer: {
+    marginBottom: 20,
     alignItems: 'center',
-    marginTop: 200,
   },
-  text: {
-    fontSize: 18,
+  title: {
+    fontSize: 22,
     fontWeight: 'bold',
-    marginTop: 10,
-    color: '#fb9032', // Green color
-  },
+    color: '#333',
+  },
 });
