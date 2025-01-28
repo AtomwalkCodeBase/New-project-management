@@ -42,6 +42,7 @@ const AddInventoryItem = () => {
   const [errors, setErrors] = useState({});
   const [isLoading, setIsLoading] = useState(false);
   const [scannedCodes, setScannedCodes] = useState([]);
+  const call_mode = 'ITEM_NEW';
 
   const navigation = useNavigation();
   const router = useRouter();
@@ -126,6 +127,36 @@ const AddInventoryItem = () => {
     });
   };
 
+  console.log('Sacn cd==',scannedCodes)
+
+  const addItemInventory = (res) => {
+    // setIsLoading(true); // Show loader before submission
+    const itemPayload = {
+      item_id: `${item}`,
+      in_quantity: amount,
+      mfg_batch_number: '0001',
+      item_srl_num_list: scannedCodes,
+      call_mode,
+    };
+
+    console.log('Payload',itemPayload)
+
+    // postEmpLeave(leavePayload)
+    //   .then(() => {
+    //     setIsLoading(false);
+    //     setIsSuccessModalVisible(true);
+    //   })
+    //   .catch(() => {
+    //     setIsLoading(false); // Hide loader on error
+    //     Alert.alert(
+    //       'Leave Application Failed',
+    //       'Please verify the selected dates. Either the dates are already approved or fall on a holiday.'
+    //     );
+    //   });
+  };
+
+
+
   useFocusEffect(
     React.useCallback(() => {
       if (params.scannedCodes) {
@@ -163,9 +194,11 @@ const AddInventoryItem = () => {
             label="Enter Quantity"
             setClaimAmount={setAmount}
           />
-          <ActionButton bgColor="#4285f4" onPress={validate}>
+          {/* <ActionButton bgColor="#4285f4" onPress={validate}>
             <ButtonText>Scan QR</ButtonText>
           </ActionButton>
+           */}
+
           {scannedCodes.length > 0 && (
             <Container>
               <Text>Scanned Codes:</Text>
@@ -174,12 +207,22 @@ const AddInventoryItem = () => {
               ))}
             </Container>
           )}
+
           <SubmitButton
+            label={scannedCodes.length > 0 ? "Submit Claim" : "Scan QR"}
+            onPress={scannedCodes.length > 0 ? addItemInventory : validate}
+            bgColor={colors.primary}
+            textColor="white"
+          />
+
+          {/* <SubmitButton
             label="Submit Claim"
             onPress={validate}
             bgColor={colors.primary}
             textColor="white"
-          />
+          /> */}
+          
+          
         </Container>
       )}
     </SafeAreaView>
