@@ -69,4 +69,5 @@ export const getActivities = `${endpoint}/get_user_activity/${db_name}/`;
 export const getActivityQc = `${endpoint}/get_activity_data/${db_name}/`;
 export const processActivity = `${endpoint}/process_activity_data/${db_name}/`;
 export const getInventoryItemList = `${endpoint}/inventory_item_list/${db_name}/`;
+export const processItemInv= `${endpoint}/process_item_srl_num_data/${db_name}/`;
 

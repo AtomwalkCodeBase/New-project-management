@@ -1,9 +1,9 @@
 import React, { useState, useEffect, useLayoutEffect } from 'react';
-import { Keyboard, SafeAreaView, Dimensions, Text } from 'react-native';
+import { Keyboard, SafeAreaView, Dimensions, Text, Alert } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { useFocusEffect } from '@react-navigation/native';
-import { getExpenseItem, getInventoryItem } from '../services/productServices';
+import { getInventoryItem, processItemSrl } from '../services/productServices';
 import HeaderComponent from '../components/HeaderComponent';
 import DropdownPicker from '../components/DropdownPicker';
 import AmountInput from '../components/AmountInput';
@@ -11,6 +11,7 @@ import SubmitButton from '../components/SubmitButton';
 import Loader from '../components/old_components/Loader';
 import styled from 'styled-components/native';
 import { colors } from '../Styles/appStyle';
+import SuccessModal from '../components/SuccessModal';
 
 const { width } = Dimensions.get('window');
 
@@ -20,21 +21,6 @@ const Container = styled.ScrollView`
   background-color: #fff;
 `;
 
-const ActionButton = styled.TouchableOpacity`
-  background-color: ${(props) => props.bgColor || '#007bff'};
-  width: ${(props) => (props.fullWidth ? `${width * 0.85}px` : `${width * 0.4}px`)};
-  padding: 10px;
-  border-radius: 8px;
-  margin-top: 10px;
-`;
-
-const ButtonText = styled.Text`
-  color: #fff;
-  font-size: 13px;
-  font-weight: bold;
-  text-align: center;
-`;
-
 const AddInventoryItem = () => {
   const [amount, setAmount] = useState("");
   const [claimItem, setClaimItem] = useState([]);
@@ -42,13 +28,12 @@ const AddInventoryItem = () => {
   const [errors, setErrors] = useState({});
   const [isLoading, setIsLoading] = useState(false);
   const [scannedCodes, setScannedCodes] = useState([]);
+  const [isSuccessModalVisible, setIsSuccessModalVisible] = useState(false);
   const call_mode = 'ITEM_NEW';
 
   const navigation = useNavigation();
   const router = useRouter();
   const params = useLocalSearchParams();
-
-  console.log('Item hhje===', item);
 
   useEffect(() => {
     fetchItemList();
@@ -77,14 +62,7 @@ const AddInventoryItem = () => {
         value: item.id,
       }));
 
-      if (item) {
-        const filteredData = formattedData.filter((entry) => entry.value === item);
-        setClaimItem(filteredData.length > 0 ? filteredData : formattedData);
-      } else {
-        setClaimItem(formattedData);
-      }
-
-      console.log('Response Item==', response.data);
+      setClaimItem(formattedData);
     } catch (error) {
       console.error('Error fetching inventory items:', error);
     } finally {
@@ -120,17 +98,13 @@ const AddInventoryItem = () => {
   };
 
   const handlePressScanQR = (amount) => {
-    console.log('Quantity to scan:', amount);
     router.push({
       pathname: 'QrScanner',
       params: { quantity: amount, item: item },
     });
   };
 
-  console.log('Sacn cd==',scannedCodes)
-
-  const addItemInventory = (res) => {
-    // setIsLoading(true); // Show loader before submission
+  const addItemInventory = () => {
     const itemPayload = {
       item_id: `${item}`,
       in_quantity: amount,
@@ -141,21 +115,19 @@ const AddInventoryItem = () => {
 
     console.log('Payload',itemPayload)
 
-    // postEmpLeave(leavePayload)
-    //   .then(() => {
-    //     setIsLoading(false);
-    //     setIsSuccessModalVisible(true);
-    //   })
-    //   .catch(() => {
-    //     setIsLoading(false); // Hide loader on error
-    //     Alert.alert(
-    //       'Leave Application Failed',
-    //       'Please verify the selected dates. Either the dates are already approved or fall on a holiday.'
-    //     );
-    //   });
+    processItemSrl(itemPayload)
+      .then(() => {
+        setIsLoading(false);
+        setIsSuccessModalVisible(true);
+      })
+      .catch((error) => {
+        setIsLoading(false);
+        Alert.alert(
+          'Item Unable to add',
+          `Failed to add: ${error.response?.data?.detail || error.message}`
+        );
+      });
   };
-
-
 
   useFocusEffect(
     React.useCallback(() => {
@@ -194,10 +166,6 @@ const AddInventoryItem = () => {
             label="Enter Quantity"
             setClaimAmount={setAmount}
           />
-          {/* <ActionButton bgColor="#4285f4" onPress={validate}>
-            <ButtonText>Scan QR</ButtonText>
-          </ActionButton>
-           */}
 
           {scannedCodes.length > 0 && (
             <Container>
@@ -214,17 +182,15 @@ const AddInventoryItem = () => {
             bgColor={colors.primary}
             textColor="white"
           />
-
-          {/* <SubmitButton
-            label="Submit Claim"
-            onPress={validate}
-            bgColor={colors.primary}
-            textColor="white"
-          /> */}
-          
-          
         </Container>
       )}
+      <SuccessModal 
+        visible={isSuccessModalVisible} 
+        onClose={() => {
+          setIsSuccessModalVisible(false);
+          navigation.goBack();
+        }} 
+      />
     </SafeAreaView>
   );
 };
