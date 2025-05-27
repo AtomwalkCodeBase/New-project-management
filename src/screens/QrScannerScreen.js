@@ -1,13 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import {
-  Text,
-  View,
-  Modal,
-  TextInput,
-  Button,
-  StyleSheet,
-  Animated,
-} from 'react-native';
+import { Text, View, Animated, StyleSheet, Alert } from 'react-native';
 import { CameraView, useCameraPermissions } from 'expo-camera';
 import HeaderComponent from '../components/HeaderComponent';
 import { useNavigation, useRouter } from 'expo-router';
@@ -15,24 +7,16 @@ import { useNavigation, useRouter } from 'expo-router';
 export default function QrScannerScreen(props) {
   const navigation = useNavigation();
   const router = useRouter();
-  const quantity = props.qantity;
-  const item = props.selectedItem;
+  const mode = props.mode; // 'inventory' or other modes
   const [hasPermission, requestPermission] = useCameraPermissions();
-  const [scannedCodes, setScannedCodes] = useState([]);
   const [isScanning, setIsScanning] = useState(true);
-  const [modalVisible, setModalVisible] = useState(false);
-  const [currentScan, setCurrentScan] = useState('');
-  const [mfgItemSerialNum, setMfgItemSerialNum] = useState('');
-  const [remarks, setRemarks] = useState('');
-  const [scanAnimation] = useState(new Animated.Value(0)); // Added for animation
-
-  console.log('Pass quantity', props.qantity);
+  const [scanAnimation] = useState(new Animated.Value(0));
 
   useEffect(() => {
     if (!hasPermission) {
       requestPermission();
     }
-    startScanAnimation(); // Start the animation when the component mounts
+    startScanAnimation();
   }, [hasPermission]);
 
   const startScanAnimation = () => {
@@ -52,39 +36,32 @@ export default function QrScannerScreen(props) {
     ).start();
   };
 
-  const handleBarCodeScanned = ({ type, data }) => {
-    if (
-      isScanning &&
-      !scannedCodes.find((code) => code.item_serial_num === data)
-    ) {
-      setCurrentScan(data); // Set the current scanned QR code
-      setModalVisible(true); // Open the modal for user input
-    }
-  };
-
-  const handleSaveDetails = () => {
-    const newEntry = {
-      item_serial_num: currentScan,
-      mfg_item_serial_num: mfgItemSerialNum,
-      remarks: remarks,
-    };
-
-    const updatedScannedCodes = [...scannedCodes, newEntry];
-    setScannedCodes(updatedScannedCodes);
-    setModalVisible(false);
-    setMfgItemSerialNum('');
-    setRemarks('');
-
-    if (updatedScannedCodes.length >= quantity) {
+  const handleBarCodeScanned = ({ data }) => {
+    if (isScanning) {
       setIsScanning(false);
-      router.replace({
-        pathname: 'AddInventory',
-        params: {
-          scannedCodes: JSON.stringify(updatedScannedCodes),
-          quantyti: quantity,
-          item: item,
-        },
-      });
+      
+      // Verify the data format matches expected inventory format
+      if (data.includes('item_number:') && data.includes('batch_number:')) {
+        router.replace({
+          pathname: 'AddInventory',
+          params: { scannedData: data }
+        });
+      } else {
+        Alert.alert(
+          'Invalid QR Code',
+          'The scanned QR code does not contain valid inventory information.\n\nExpected format:\nitem_number: XXX;batch_number: XXX;bin_location_id: XXX;',
+          [
+            {
+              text: 'Try Again',
+              onPress: () => setIsScanning(true)
+            },
+            {
+              text: 'Cancel',
+              onPress: () => router.back()
+            }
+          ]
+        );
+      }
     }
   };
 
@@ -95,69 +72,42 @@ export default function QrScannerScreen(props) {
     return <Text>No access to camera</Text>;
   }
 
-  // Map animation to a translation effect
   const scanLineTranslateY = scanAnimation.interpolate({
     inputRange: [0, 1],
-    outputRange: [0, 300], // Adjust range based on camera preview height
+    outputRange: [0, 300],
   });
 
   return (
     <View style={{ flex: 1 }}>
-      <HeaderComponent headerTitle="Item Scanner" onBackPress={navigation.goBack} />
-      {!modalVisible && (
-        <View style={{ flex: 1 }}>
-          <CameraView
-            style={{ flex: 1 }}
-            facing="back"
-            barcodeScannerSettings={{
-              barcodeTypes: ['qr'],
-            }}
-            onBarcodeScanned={isScanning ? handleBarCodeScanned : undefined}
-          >
-            {/* Scan Animation */}
-            <View style={styles.scanArea}>
-              <Animated.View
-                style={[
-                  styles.scanLine,
-                  { transform: [{ translateY: scanLineTranslateY }] },
-                ]}
-              />
-            </View>
-          </CameraView>
-        </View>
-      )}
-      <View style={{ padding: 10 }}>
-        <Text>Scanned {scannedCodes.length} of {quantity}</Text>
-      </View>
-
-      <Modal visible={modalVisible} transparent animationType="slide">
-        <View style={styles.modalContainer}>
-          <View style={styles.modalContent}>
-            <Text style={styles.modalTitle}>Enter Details</Text>
-            <Text>Scanned QR Code: {currentScan}</Text>
-            <TextInput
-              style={styles.input}
-              placeholder="Enter MFG Item Serial Number"
-              value={mfgItemSerialNum}
-              onChangeText={setMfgItemSerialNum}
+      <HeaderComponent 
+        headerTitle="Scan Inventory QR" 
+        onBackPress={() => router.back()} 
+      />
+      
+      <View style={{ flex: 1 }}>
+        <CameraView
+          style={{ flex: 1 }}
+          facing="back"
+          barcodeScannerSettings={{ barcodeTypes: ['qr'] }}
+          onBarcodeScanned={isScanning ? handleBarCodeScanned : undefined}
+        >
+          <View style={styles.scanArea}>
+            <Animated.View
+              style={[styles.scanLine, { transform: [{ translateY: scanLineTranslateY }] }]}
             />
-            <TextInput
-              style={styles.input}
-              placeholder="Enter Remarks"
-              value={remarks}
-              onChangeText={setRemarks}
-            />
-            <View style={styles.buttonRow}>
-              <Button title="Save" onPress={handleSaveDetails} />
-              <Button
-                title="Cancel"
-                onPress={() => setModalVisible(false)}
-                color="red"
-              />
-            </View>
           </View>
-        </View>
-      </Modal>
+        </CameraView>
+      </View>
+      
+      <View style={styles.instructionsContainer}>
+        <Text style={styles.instructionsTitle}>Scan Inventory QR Code</Text>
+        <Text style={styles.instructionsText}>
+          Point your camera at the inventory label QR code containing:
+        </Text>
+        <Text style={styles.instructionsText}>
+          item_number: XXX;batch_number: XXX;bin_location_id: XXX;
+        </Text>
+      </View>
     </View>
   );
 }
@@ -179,35 +129,19 @@ const styles = StyleSheet.create({
     backgroundColor: 'red',
     position: 'absolute',
   },
-  modalContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: 'rgba(0,0,0,0.5)',
+  instructionsContainer: {
+    padding: 15,
+    backgroundColor: '#f8f9fa',
   },
-  modalContent: {
-    width: '80%',
-    backgroundColor: 'white',
-    borderRadius: 10,
-    padding: 20,
-    alignItems: 'center',
-  },
-  modalTitle: {
-    fontSize: 18,
+  instructionsTitle: {
+    fontSize: 16,
     fontWeight: 'bold',
-    marginBottom: 10,
+    marginBottom: 8,
+    color: '#333',
   },
-  input: {
-    width: '100%',
-    borderWidth: 1,
-    borderColor: '#ccc',
-    borderRadius: 5,
-    padding: 10,
-    marginVertical: 10,
-  },
-  buttonRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    width: '100%',
+  instructionsText: {
+    fontSize: 14,
+    color: '#666',
+    marginBottom: 4,
   },
 });

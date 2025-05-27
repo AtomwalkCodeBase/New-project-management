@@ -4,6 +4,7 @@ import styled from 'styled-components/native';
 import InfoCard from '../components/InfoCard';
 import { useRouter } from 'expo-router';
 import HeaderComponent from '../components/HeaderComponent';
+import { LinearGradient } from 'expo-linear-gradient';
 import { useNavigation } from '@react-navigation/native';
 
 const { width } = Dimensions.get('window');
@@ -26,12 +27,22 @@ const ButtonRow = styled.View`
   width: 100%;
 `;
 
-const GradientOverlay = styled.View`
-  flex: 1;
-  background-color: rgba(255, 255, 255, 0.8); /* Subtle overlay for readability */
-  justify-content: center;
+// const GradientOverlay = styled.View`
+//   flex: 1;
+//   background-color: rgba(255, 255, 255, 0.8); /* Subtle overlay for readability */
+//   justify-content: center;
+//   align-items: center;
+// `;
+
+const GradientOverlay = styled(LinearGradient).attrs({
+  colors: ['#ffd6b3', '#f7dce0'],
+  start: { x: 0, y: 0 },
+  end: { x: 1, y: 1 },
+  })`
   align-items: center;
-`;
+  height: 100%;
+  `;
+  
 
 const ManageInventory = () => {
   const router = useRouter();
@@ -47,44 +58,45 @@ const ManageInventory = () => {
 
   return (
     <Container>
-      <HeaderComponent headerTitle="Manage Inventory" onBackPress={handleBackPress} />
+      <HeaderComponent headerTitle="Item Tracking" onBackPress={handleBackPress} />
       <BackgroundImage>
         <GradientOverlay>
           <View style={styles.titleContainer}>
-            <Text style={styles.title}>Manage Your Inventory</Text>
+            {/* <Text style={styles.title}>Manage Your Inventory</Text> */}
           </View>
           <ButtonRow>
             <InfoCard
-              number="Add"
+              number="Register"
               label="Item"
-              iconName="plus-circle-multiple"
+              iconName="store-plus"
               gradientColors={['#007bff', '#00c6ff']}
               onPress={() => handleButtonPress('AddInventory')}
             />
             <InfoCard
-              number="Process"
+              number="Fill"
               label="Item"
-              iconName="check-circle"
+              iconName="store-check"
               gradientColors={['#38ef7d', '#11998e']}
-              onPress={() => handleButtonPress('ProcessInventory')}
+              onPress={() => handleButtonPress('AddInventory')}
             />
           </ButtonRow>
           <ButtonRow>
             <InfoCard
-              number="View"
-              label="Inventory"
-              iconName="eye"
+              number="Dilivery"
+              label="Item"
+              iconName="truck-delivery"
               gradientColors={['#f7971e', '#ffd200']}
-              onPress={() => handleButtonPress('ViewInventory')}
+              onPress={() => handleButtonPress('AddInventory')}
             />
             <InfoCard
-              number="Reports"
-              label="Stats"
-              iconName="chart-line"
-              gradientColors={['#8e44ad', '#c0392b']}
-              onPress={() => handleButtonPress('Reports')}
+              number="Return"
+              label="Tracking"
+              iconName="dolly"
+              gradientColors={['#81C784', '#2E7D32']}
+              onPress={() => handleButtonPress('AddInventory')}
             />
           </ButtonRow>
+          
         </GradientOverlay>
       </BackgroundImage>
     </Container>

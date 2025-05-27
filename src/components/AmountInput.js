@@ -1,7 +1,7 @@
 import React from 'react';
 import { Text } from 'react-native';
 import styled from 'styled-components/native';
-import {colors} from '../Styles/appStyle';
+import { colors } from '../Styles/appStyle';
 
 const Input = styled.TextInput`
   border: 1px solid #ccc;
@@ -9,6 +9,7 @@ const Input = styled.TextInput`
   border-radius: 8px;
   font-size: 16px;
   width: 80%;
+  margin-top: 5px;
 `;
 
 const Label = styled.Text`
@@ -22,13 +23,13 @@ const AmountInput = ({ error, label, claimAmount, setClaimAmount }) => {
     <>
       {/* <Label>{label}</Label> */}
       <Input
-        placeholder="Enter Quantity"
+        placeholder={label || "Enter Quantity"}
         keyboardType="numeric"
         value={claimAmount}
         onChangeText={setClaimAmount}
       />
       {error && (
-        <Text style={{marginTop: 7, color: colors.red, fontSize: 12}}>
+        <Text style={{ marginTop: 7, color: colors.red, fontSize: 12 }}>
           {error}
         </Text>
       )}

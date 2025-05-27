@@ -404,7 +404,7 @@ const handlePressScanQR = () => {
               >
                 <ButtonText>Production Data</ButtonText>
               </ActionButton>
-              <ActionButton
+              {/* <ActionButton
                   bgColor="#4285f4"
                   onPress={() => handleQRPress(item.pa_id)} // Updated to handle QR generation
                 >
@@ -415,7 +415,7 @@ const handlePressScanQR = () => {
                 onPress={handlePressScanQR}
               >
                 <ButtonText>Scan QR</ButtonText>
-              </ActionButton>
+              </ActionButton> */}
             </>
           ) : (
             <ActionButton

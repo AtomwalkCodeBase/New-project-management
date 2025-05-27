@@ -25,7 +25,7 @@ const DropdownPicker = ({ error, label, data, value, setValue }) => {
   console.log('drop',data)
   return (
     <FieldContainer>
-      {/* <Label>{label}</Label> */}
+      <Label>{label}</Label>
       <PickerContainer>
         <Dropdown
           data={(data || []).map((item) => ({

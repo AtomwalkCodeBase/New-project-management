@@ -1,17 +1,16 @@
 import { StyleSheet, Text, View } from 'react-native';
 import React, { useContext, useEffect, useState } from 'react';
-import ActivityScreen from '../../src/screens/AllActivity';
-import ManageInventory from '../../src/screens/ManageInventory';
+import InventoryScanner from '../../src/screens/InventoryScanner';
 
 const Inventory = () => {
   
-  // console.log('Profile==', user);
-
   return (
     <View style={{ flex: 1 }}>
       
-        {/* <ActivityScreen data="PENDING" /> */}
-        <ManageInventory/>
+        {/* <ManageInventory/> */}
+        <InventoryScanner/>
+
+
 
     </View>
   );

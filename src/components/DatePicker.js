@@ -11,6 +11,7 @@ const DatePickerButton = styled.TouchableOpacity`
   border-width: 1px;
   border-color: #ccc;
   padding: 10px;
+  width: 95%;
   border-radius: 5px;
 `;
 
@@ -40,7 +41,7 @@ const DatePicker = ({ error, label, cDate, setCDate }) => {
     <FieldContainer>
       <Label>{label}</Label>
       <DatePickerButton onPress={() => setShowDatePicker(true)}>
-        <DateText>{cDate.toDateString()}</DateText>
+        <DateText>{cDate ? cDate.toDateString() : 'Select Date'}</DateText>
         <Icon source={require('../../assets/images/c-icon.png')} />
       </DatePickerButton>
       {showDatePicker && (

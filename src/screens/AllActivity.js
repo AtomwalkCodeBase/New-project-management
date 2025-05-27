@@ -241,7 +241,7 @@ const ActivityScreen = (props) => {
     };
 
     const getUniqueRefNums = () => {
-        const uniqueRefNums = activities.reduce((acc, curr) => {
+        const uniqueRefNums = activities?.reduce((acc, curr) => {
             if (curr.ref_num && !acc.includes(curr.ref_num)) {
                 acc.push(curr.ref_num);
             }

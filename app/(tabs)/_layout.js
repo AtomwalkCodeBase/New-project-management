@@ -1,33 +1,11 @@
-import React, { useEffect, useState } from 'react';
-import { Tabs } from 'expo-router';
+import { StyleSheet, Text, View } from 'react-native'
+import React from 'react'
+import { Tabs } from 'expo-router'
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import Ionicons from '@expo/vector-icons/Ionicons';
-import { getProfileInfo } from '../../src/services/authServices';
+import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 
 const _layout = () => {
-  const [isUser, setIsUser] = useState(true);
-  const [profile, setProfile] = useState(null);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    getProfileInfo()
-      .then((res) => {
-        setProfile(res.data);
-        const { is_manager, is_admin, is_owner } = res?.data?.user_group || {};
-        setIsUser(!(is_manager || is_admin || is_owner));
-      })
-      .catch(() => {
-        setIsUser(true);
-      })
-      .finally(() => {
-        setLoading(false);
-      });
-  }, []);
-
-  if (loading) {
-    return null; // Optionally, add a loading spinner or fallback UI here.
-  }
-
   return (
     <Tabs>
       <Tabs.Screen
@@ -46,16 +24,16 @@ const _layout = () => {
           tabBarIcon: ({ color }) => <FontAwesome name="industry" size={24} color={color} />,
         }}
       />
-      {isUser && (
+      {/* {isUser && ( */}
         <Tabs.Screen
           name="inventory"
           options={{
-            title: 'Inventory',
+            title: 'Scan Item',
             headerShown: false,
-            tabBarIcon: ({ color }) => <FontAwesome name="database" size={24} color={color} />,
+            tabBarIcon: ({ color }) => <FontAwesome name="qrcode" size={24} color={color} />,
           }}
         />
-      )}
+      {/* )} */}
       <Tabs.Screen
         name="profile"
         options={{
@@ -65,7 +43,9 @@ const _layout = () => {
         }}
       />
     </Tabs>
-  );
-};
+  )
+}
 
-export default _layout;
+export default _layout
+
+const styles = StyleSheet.create({})

@@ -1,12 +1,16 @@
-import { SafeAreaView } from 'react-native-safe-area-context';
-import React, { useEffect, useState } from 'react';
+import { StyleSheet, Text, View } from 'react-native'
+import React, { useContext, useEffect, useState } from 'react';
+import { AppContext } from '../../context/AppContext';
 import HomeScreen from '../../src/screens/HomeScreen';
 import PinPopup from '../../src/screens/PinPopup';
 import { getProfileInfo } from '../../src/services/authServices';
 import ManagerHomePage from '../../src/screens/ManagerHomeScreen';
-import { Text } from 'react-native';
+import FingerPopup from '../../src/screens/FingerPopup';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
-const Home = () => {
+const home = () => {
+  const { state } = useContext(AppContext);
+
   const [isManager, setIsManager] = useState(false);
   const [profile, setProfile] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -24,12 +28,16 @@ const Home = () => {
       });
   }, []);
 
+
   return (
     <SafeAreaView>
       {isManager ? <ManagerHomePage /> : <HomeScreen />}
-      <PinPopup />
+      <PinPopup />      
+      <FingerPopup/>
     </SafeAreaView>
-  );
-};
+  )
+}
 
-export default Home;
+export default home
+
+const styles = StyleSheet.create({})

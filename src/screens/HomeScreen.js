@@ -164,7 +164,7 @@ const HomePage = () => {
   const fetchActivityDetails = () => {
     getActivityList()
       .then((res) => {
-        const uniqueActivities = res?.data?.a_list.reduce((acc, current) => {
+        const uniqueActivities = res?.data?.a_list?.reduce((acc, current) => {
           const x = acc.find(item => item.ref_num === current.ref_num);
           if (!x) {
             acc.push(current);
@@ -231,8 +231,7 @@ const HomePage = () => {
         
         </CompanyContainer>
 
-        {activities.length > 0 ? (
-          <>
+       
         <ProfileTextContainer>
           <CompanyName>My Activities</CompanyName>
         
@@ -273,12 +272,6 @@ const HomePage = () => {
           </ActivityContainer>
         )}
 
-        </>
-
-      ):<View style={styles.container}>
-      <MaterialIcons name="info-outline" size={48} color="#fb9032" />
-      <Text style={styles.text}>No Activity Allocated</Text>
-    </View>}
         
 
       </GradientBackground>
