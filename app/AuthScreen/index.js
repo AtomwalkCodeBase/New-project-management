@@ -172,13 +172,13 @@ useEffect(() => {
 
     return (
       <SafeAreaContainer>
-      <StatusBar barStyle="light-content" backgroundColor="#a970ff" />
+      <StatusBar barStyle="light-content" backgroundColor="rgb(252, 128, 20)" />
           <Container>
             <Header style={styles.headerContainer}>
               <LinearGradient 
-                colors={['#a970ff', '#8a5bda']} 
-                start={[0, 0]} 
-                end={[1, 1]}
+                colors={['rgb(252, 128, 20)', 'rgb(252, 128, 20)']} 
+                start={[0, 1]} 
+                end={[1, 0]}
                 style={styles.headerGradient}
               >
                 <View style={styles.headerTop}>

@@ -136,11 +136,13 @@ const AuthScreen = () => {
 
     return (
         <SafeAreaView style={styles.container}>
-            <StatusBar backgroundColor="#a970ff" barStyle="light-content" />
+            <StatusBar backgroundColor="rgb(252, 128, 20)" barStyle="light-content" />
             
             {/* Bank Logo Area */}
             <LinearGradient
-                colors={['#a970ff', '#8a5bda']}
+                colors={["rgb(252, 128, 20)", 'rgb(252, 128, 20)']}
+                start={[0, 1]} 
+                end={[1, 0]}
                 style={styles.header}
             >
                 <View style={styles.logoContainer}>
