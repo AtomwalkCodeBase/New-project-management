@@ -1,5 +1,6 @@
 import React, { useContext, useState, useEffect } from 'react';
 import { View, Text, FlatList, Dimensions, ScrollView, TouchableOpacity } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import styled from 'styled-components/native';
 import InfoCard from '../components/InfoCard';
 import { AppContext } from '../../context/AppContext';
@@ -14,6 +15,7 @@ import Loader from '../components/old_components/Loader';
 const { width } = Dimensions.get('window');
 
 const Container = styled.View`
+flex: 1;
 background-color: #f5f5f5;
 `;
 
@@ -30,7 +32,7 @@ const CompanyContainer = styled.View`
 display: flex;
 flex-direction: row;
 width: 100%;
-padding: 0px 10px;
+padding: 10px 10px 10px 10px;
 background-color: #fb9032;
 align-items: center;
 gap: 20PX;
@@ -193,8 +195,9 @@ const cardColors = [
 
 return (
     <Container>
-        <StatusBar barStyle="light-content" backgroundColor="rgb(252, 128, 20)" />
+        <StatusBar style="light" />
         <Loader visible={loading} />
+        <SafeAreaView edges={['top']} style={{ flex: 1 }}>
         <GradientBackground>
             <CompanyContainer>
                 <LogoContainer>
@@ -290,6 +293,7 @@ return (
                 </Row>
             </ScrollView>
         </GradientBackground>
+        </SafeAreaView>
     </Container>
 );
 

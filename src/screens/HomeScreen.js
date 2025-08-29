@@ -10,11 +10,12 @@ import { useRouter } from 'expo-router';
 import { getActivityList } from '../services/productServices';
 import { MaterialIcons } from '@expo/vector-icons';
 import Loader from '../components/old_components/Loader';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 const { width } = Dimensions.get('window');
 
 const Container = styled.View`
-  /* flex: 1; */
+  flex: 1;
   background-color: #f5f5f5;
 `;
 
@@ -33,7 +34,7 @@ const CompanyContainer = styled.View`
   flex-direction: row;
   /* height: 20%; */
   width: 100%;
-  padding: 10px;
+  padding: 20px 10px 10px 10px;
   background-color: #fb9032;
   align-items: center;
   gap: 20PX;
@@ -218,6 +219,7 @@ const HomePage = () => {
   return (
     <Container>
       <StatusBar barStyle="light-content" backgroundColor="rgb(252, 128, 20)" />
+      <SafeAreaView edges={['top']} style={{ flex: 1, paddingTop: 8 }}>
       <GradientBackground>
       <Loader visible={loaderVisible} />
       <CompanyContainer>
@@ -275,6 +277,7 @@ const HomePage = () => {
         
 
       </GradientBackground>
+      </SafeAreaView>
     </Container>
   );
 };

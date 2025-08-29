@@ -1,4 +1,4 @@
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { View } from 'react-native';
 import React, { useEffect, useState } from 'react';
 import HomeScreen from '../../src/screens/HomeScreen';
 import PinPopup from '../../src/screens/PinPopup';
@@ -46,14 +46,14 @@ const Home = () => {
 
   if (loadingTimeout) {
     return (
-      <SafeAreaView style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
         <Text>Loading timeout occurred. Please try again.</Text>
-      </SafeAreaView>
+      </View>
     );
   }
 
   return (
-    <SafeAreaView>
+    <View style={{ flex: 1 }}>
       <Loader visible={loading} onTimeout={handleLoaderTimeout} />
       
       {!loading && (
@@ -63,7 +63,7 @@ const Home = () => {
           <FingerPopup/>
         </>
       )}
-    </SafeAreaView>
+    </View>
   );
 };
 

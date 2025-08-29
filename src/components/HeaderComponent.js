@@ -8,24 +8,16 @@ import {
   Platform 
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 const { width, height } = Dimensions.get('window');
 
 const HeaderComponent = ({ headerTitle, onBackPress }) => {
-  // Determine styles based on screen dimensions
-  const getHeaderStyles = () => {
-    let styles = {
-      container: {
-        marginTop: height < 806 ? 20 : 48,
-      },
-      text: {
-        fontSize: width < 360 ? 18 : 20,
-      }
-    };
-    return styles;
+  const insets = useSafeAreaInsets();
+  const dynamicStyles = {
+    container: { paddingTop: insets.top + 8 },
+    text: { fontSize: width < 360 ? 18 : 20 },
   };
-
-  const dynamicStyles = getHeaderStyles();
 
   return (
     <View style={[styles.container, dynamicStyles.container]}>

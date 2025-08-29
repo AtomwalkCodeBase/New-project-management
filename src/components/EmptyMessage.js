@@ -1,13 +1,15 @@
 import React from 'react';
 import styled from 'styled-components/native';
-import { Text, View, Image } from 'react-native';
+import { Text, View } from 'react-native';
+import { MaterialCommunityIcons } from '@expo/vector-icons';
 
 const EmptyMessageContainer = styled.View`
-  flex: 1;
+  width: 80%;
+  min-height: 633px;
   justify-content: center;
   align-items: center;
   padding: 20px;
-  background-color: #fff;
+  background-color: transparent;
 `;
 
 const IconContainer = styled.View`
@@ -31,7 +33,7 @@ const EmptyMessage = (res) => {
   return (
     <EmptyMessageContainer>
       <IconContainer>
-        <Image source={require('../../assets/images/Tasks.png')} style={{ width: 120, height: 120 }} />
+        <MaterialCommunityIcons name="file-remove-outline" size={96} color="#ff8833" />
       </IconContainer>
       <MessageText>Nothing to Display</MessageText>
       <SubText>There are no {res.data} data found.</SubText>
